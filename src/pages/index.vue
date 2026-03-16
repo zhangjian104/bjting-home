@@ -255,7 +255,7 @@ onMounted(() => {
                 </section>
 
                 <!-- ═══════ 推荐MV ═══════ -->
-                <section v-if="mvs.length" v-scroll-in="{ direction: 'up', delay: 0.1 }">
+                <!-- <section v-if="mvs.length" v-scroll-in="{ direction: 'up', delay: 0.1 }">
                     <div class="mb-6 flex items-baseline justify-between">
                         <h2
                             class="text-primary flex items-center gap-2.5 text-xl font-bold tracking-tight"
@@ -292,7 +292,7 @@ onMounted(() => {
                             class="stagger-item"
                         />
                     </div>
-                </section>
+                </section> -->
             </div>
         </div>
     </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { banner, personalized, personalizedNewsong, personalizedMv, topArtists, getPopularAuthors } from '@/api';
+import { banner, personalized, personalizedNewsong, personalizedMv, topArtists, getPopularAuthors, getAudiobooks } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Autoplay, Pagination, EffectCards } from 'swiper/modules';
@@ -46,14 +46,14 @@ const { banners, playlists, newSongs, mvs, artists, isLoading } = toRefs(state);
 const loadHomeData = async () => {
     state.isLoading = true;
     try {
-        const [b, p, s, m] = await Promise.all([
+        const [b, p, m] = await Promise.all([
             banner({ type: 2 }),
             personalized({ limit: 6 }),
-            personalizedNewsong({ limit: 6 }),
             personalizedMv(),
         ]);
 
         const authorsRes = await getPopularAuthors().catch(() => []);
+        const audiobooksRes = await getAudiobooks().catch(() => []);
 
         state.banners = transformBanners(b as Record<string, unknown>, 5);
         state.playlists = transformPlaylists(
@@ -61,7 +61,29 @@ const loadHomeData = async () => {
             6,
             t('home.playlistFallback')
         );
-        state.newSongs = transformSongs(s as Record<string, unknown>, 6);
+        
+        const booksList = Array.isArray(audiobooksRes) ? audiobooksRes : audiobooksRes.data || [];
+        state.newSongs = booksList.slice(0, 6).map((book: any) => {
+            let authorStr = '佚名';
+            let narratorStr = '佚名';
+            
+            if (book.authors && Array.isArray(book.authors)) {
+                if (book.authors[0]) authorStr = book.authors[0];
+                if (book.authors[1]) narratorStr = book.authors[1];
+            }
+            
+            const artistDisplay = `作者：${authorStr} | 演播：${narratorStr}`;
+            
+            return {
+                id: book.id,
+                name: book.title || book.name || '未知有声书',
+                artist: artistDisplay,
+                cover: book.cover_path ? `/r2/${book.cover_path}` : (book.cover || book.coverImgUrl || ''),
+                duration: book.episode_count || 0, // 利用 duration 字段临时存储集数，组件里会判断拦截显示
+                album: book.category || ''
+            };
+        });
+
         state.mvs = transformMVs(m as Record<string, unknown>, 4);
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
@@ -219,13 +241,14 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                                     class="icon-[mdi--music-note-plus] text-primary h-4 w-4"
                                 ></span>
                             </span>
-                            {{ t('components.discover.newSongs') }}
+                            {{ t('components.discover.audiobooks') }}
                         </h2>
                     </div>
-                    <MobileSongList :songs="newSongs" variant="compact" :show-index="true" />
+                    <MobileSongList :songs="newSongs" variant="compact" :show-index="false" />
                 </section>
 
-                <section v-if="mvs.length" class="px-4 pb-6">
+                <!-- 推荐MV -->
+                <!-- <section v-if="mvs.length" class="px-4 pb-6">
                     <div class="mb-4 flex items-center justify-between">
                         <h2 class="section-title">
                             <span
@@ -280,7 +303,7 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                             </div>
                         </router-link>
                     </div>
-                </section>
+                </section> -->
             </template>
         </div>
     </div>

@@ -92,6 +92,8 @@ const handleChapterClick = (s: Song, i: number) => {
 
 <template>
     <div class="playlist-page flex flex-1 flex-col overflow-hidden h-full">
+        <!-- TODO: 目前全局的 MobileHeader 缺少返回按钮。后续需修改 src/layout/mobile/Header.vue，
+             在深层路由（如本页面）时动态在左侧显示返回按钮，取代现有的这个内嵌式返回按钮。-->
         <div class="header-section relative shrink-0">
             <div class="absolute top-4 left-4 z-50">
                 <Button variant="ghost" size="icon-md" rounded="full" @click="goBack" class="bg-black/20 text-white backdrop-blur-md">

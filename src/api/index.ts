@@ -412,3 +412,8 @@ export const personalFm = () => httpGet('/personal_fm');
  * 获取热门主播列表
  */
 export const getPopularAuthors = () => fetch('/sapi/authors/popular').then(r => r.json());
+
+/**
+ * 获取有声书库列表
+ */
+export const getAudiobooks = () => fetch('/sapi/audiobooks').then(r => r.json());

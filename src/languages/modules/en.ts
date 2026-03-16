@@ -89,6 +89,7 @@ export default {
         },
         discover: {
             newSongs: 'New Releases',
+            audiobooks: 'Audiobooks',
             recommendMv: 'Featured MVs',
             hotArtists: 'Hot Artists',
             viewMore: 'View More',

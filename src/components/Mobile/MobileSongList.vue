@@ -85,11 +85,11 @@ const handleClick = (s: Song, i: number) => {
                     {{ song.name }}
                 </p>
                 <p class="song-artist mt-0.5 truncate text-xs">
-                    {{ song.artist }}<template v-if="song.album"> - 《{{ song.album }}》</template>
+                    {{ song.artist }}
                 </p>
             </div>
             <div class="flex shrink-0 items-center gap-2">
-                <span class="song-duration text-xs">{{ formatDuration(song.duration) }}</span>
+                <span class="song-duration text-xs">共 {{ song.duration }} 集</span>
                 <div v-if="isCurrent(song)" class="playing-icon">
                     <span class="bar" :class="{ animate: isPlaying }"></span>
                     <span class="bar" :class="{ animate: isPlaying }"></span>
@@ -142,10 +142,10 @@ const handleClick = (s: Song, i: number) => {
                     {{ song.name }}
                 </p>
                 <p class="song-artist mt-0.5 truncate text-xs">
-                    {{ song.artist }}<template v-if="song.album"> - 《{{ song.album }}》</template>
+                    {{ song.artist }}
                 </p>
             </div>
-            <span class="song-duration shrink-0 text-xs">{{ formatDuration(song.duration) }}</span>
+            <span class="song-duration shrink-0 text-xs">共 {{ song.duration }} 集</span>
         </div>
     </div>
 </template>

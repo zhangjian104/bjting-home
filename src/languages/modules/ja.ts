@@ -83,6 +83,7 @@ export default {
         },
         discover: {
             newSongs: '新曲',
+            audiobooks: 'オーディオブック',
             recommendMv: 'おすすめMV',
             hotArtists: '人気アーティスト',
             viewMore: 'もっと見る',

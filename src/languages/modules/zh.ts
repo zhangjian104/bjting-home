@@ -79,6 +79,7 @@ export default {
         },
         discover: {
             newSongs: '新歌速递',
+            audiobooks: '有声书库',
             recommendMv: '推荐MV',
             hotArtists: '热门主播',
             viewMore: '查看更多',
