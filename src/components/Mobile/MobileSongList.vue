@@ -41,7 +41,7 @@ const formatDuration = (ms: number) => {
 const router = useRouter();
 
 const handleClick = (s: Song, i: number) => {
-    router.push(`/book/${s.id}`);
+    router.push(`/book/${encodeURIComponent(String(s.id))}`);
 };
 </script>
 

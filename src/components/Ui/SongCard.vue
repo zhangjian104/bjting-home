@@ -22,7 +22,7 @@ const cardRef = ref<HTMLElement | null>(null);
 const coverRef = ref<HTMLElement | null>(null);
 
 const handleClick = async (_event: MouseEvent) => {
-    const targetRoute = props.to || `/book/${props.song.id}`;
+    const targetRoute = props.to || `/book/${encodeURIComponent(String(props.song.id))}`;
     router.push(targetRoute);
 };
 
