@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAudioStore } from '@/stores/modules/audio';
 import { useAudio } from '@/composables/useAudio';
 import type { Song } from '@/stores/interface';
+import { getAudiobookDetail } from '@/api';
 import Button from '@/components/Ui/Button.vue';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 
@@ -12,48 +13,91 @@ const router = useRouter();
 const audioStore = useAudioStore();
 const { setPlaylist, play, currentSong, isPlaying } = useAudio();
 
-const bookId = route.params.id;
+const isLoading = ref(true);
 
 const bookInfo = ref({
-    id: bookId,
-    name: '我的考古探险记',
-    description: '超精彩新作，嘎嘎好听。悬疑探险，步步惊心！',
-    coverImgUrl: '/r2/authors/ye_qiantong.png',
-    creator: '主播名字',
-    playCount: 128500,
+    id: '',
+    name: '加载中...',
+    description: '',
+    coverImgUrl: '',
+    creator: '',
+    playCount: 0,
 });
 
 const chapters = ref<Song[]>([]);
 
-onMounted(() => {
-    const data: Song[] = [];
-    for (let i = 1; i <= 20; i++) {
-        data.push({
-            id: Number(`${bookId}${i.toString().padStart(3, '0')}`),
-            name: `第${i.toString().padStart(3, '0')}集`,
-            artist: bookInfo.value.creator,
-            album: bookInfo.value.name,
-            duration: 1000 * 60 * 8, // 8 minutes
-            cover: bookInfo.value.coverImgUrl,
-            url: '',
-        });
+const loadBookDetail = async (id: string) => {
+    isLoading.value = true;
+    try {
+        const res = await getAudiobookDetail(id);
+
+        if (res && res.book) {
+            let authorStr = '佚名';
+            let narratorStr = '佚名';
+            if (res.book.authors && Array.isArray(res.book.authors)) {
+                if (res.book.authors[0]) authorStr = res.book.authors[0];
+                if (res.book.authors[1]) narratorStr = res.book.authors[1];
+            }
+
+            bookInfo.value = {
+                id: res.book.id,
+                name: res.book.title,
+                description: res.book.description,
+                coverImgUrl: res.book.cover_path ? `/r2/${res.book.cover_path}` : '',
+                creator: `作者：${authorStr} | 演播：${narratorStr}`,
+                playCount: 0,
+            };
+        }
+
+        if (res && res.episodes && Array.isArray(res.episodes)) {
+            chapters.value = res.episodes.map((ep: any) => ({
+                id: ep.key,
+                name: ep.name,
+                artist: bookInfo.value.creator,
+                album: bookInfo.value.name,
+                duration: (ep.duration_seconds || 0) * 1000,
+                cover: bookInfo.value.coverImgUrl,
+                url: ep.key ? `/r2/${ep.key}` : '',
+            }));
+        }
+    } catch (e) {
+        console.error('Failed to load audiobook detail:', e);
+    } finally {
+        isLoading.value = false;
     }
-    chapters.value = data;
+};
+
+onMounted(() => {
+    const id = route.params.id as string;
+    if (id) {
+        loadBookDetail(id);
+    }
 });
+
+watch(
+    () => route.params.id,
+    newId => {
+        if (newId) {
+            loadBookDetail(newId as string);
+        }
+    }
+);
 
 const hasPlayedBefore = computed(() => {
     const history = audioStore.audio.playHistory || [];
-    return history.some((h) => chapters.value.some((c) => c.id === h.id));
+    return history.some(h => chapters.value.some(c => c.id === h.id));
 });
 
 const handlePlay = () => {
     if (chapters.value.length === 0) return;
-    
+
     setPlaylist(chapters.value, 0);
 
     if (hasPlayedBefore.value) {
         const history = audioStore.audio.playHistory || [];
-        const lastPlayed = [...history].reverse().find((h) => chapters.value.some((c) => c.id === h.id));
+        const lastPlayed = [...history]
+            .reverse()
+            .find(h => chapters.value.some(c => c.id === h.id));
         if (lastPlayed) {
             const index = chapters.value.findIndex(c => c.id === lastPlayed.id);
             if (index !== -1) {
@@ -62,7 +106,7 @@ const handlePlay = () => {
             }
         }
     }
-    
+
     play(chapters.value[0], 0);
 };
 
@@ -87,20 +131,25 @@ const handleChapterClick = (s: Song, i: number) => {
     setPlaylist(chapters.value, i);
     play(s, i);
 };
-
 </script>
 
 <template>
-    <div class="playlist-page flex flex-1 flex-col overflow-hidden h-full">
+    <div class="playlist-page flex h-full flex-1 flex-col overflow-hidden">
         <!-- TODO: 目前全局的 MobileHeader 缺少返回按钮。后续需修改 src/layout/mobile/Header.vue，
              在深层路由（如本页面）时动态在左侧显示返回按钮，取代现有的这个内嵌式返回按钮。-->
         <div class="header-section relative shrink-0">
             <div class="absolute top-4 left-4 z-50">
-                <Button variant="ghost" size="icon-md" rounded="full" @click="goBack" class="bg-black/20 text-white backdrop-blur-md">
+                <Button
+                    variant="ghost"
+                    size="icon-md"
+                    rounded="full"
+                    @click="goBack"
+                    class="bg-black/20 text-white backdrop-blur-md"
+                >
                     <span class="icon-[mdi--arrow-left] h-6 w-6"></span>
                 </Button>
             </div>
-            
+
             <div class="header-bg absolute inset-0 overflow-hidden">
                 <LazyImage
                     :src="bookInfo.coverImgUrl"
@@ -122,25 +171,27 @@ const handleChapterClick = (s: Song, i: number) => {
 
                     <div class="flex min-w-0 flex-1 flex-col justify-between py-1">
                         <div>
-                            <h1 class="text-accent mb-2 line-clamp-2 text-lg leading-tight font-bold text-white">
+                            <h1
+                                class="text-accent mb-2 line-clamp-2 text-lg leading-tight font-bold text-white"
+                            >
                                 {{ bookInfo.name }}
                             </h1>
                             <div class="creator-info flex items-center gap-2">
-                                <span class="text-white/80 text-sm">{{ bookInfo.creator }}</span>
+                                <span class="text-sm text-white/80">{{ bookInfo.creator }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="desc-section mt-4">
-                    <p class="text-white/70 text-xs leading-relaxed line-clamp-2">
+                    <p class="line-clamp-2 text-xs leading-relaxed text-white/70">
                         {{ bookInfo.description }}
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="action-bar flex items-center justify-center px-4 py-4 shrink-0 bg-transparent">
+        <div class="action-bar flex shrink-0 items-center justify-center bg-transparent px-4 py-4">
             <Button
                 variant="gradient"
                 size="md"
@@ -154,7 +205,7 @@ const handleChapterClick = (s: Song, i: number) => {
             </Button>
         </div>
 
-        <div class="flex-1 overflow-auto px-4 pb-6 custom-scrollbar">
+        <div class="custom-scrollbar flex-1 overflow-auto px-4 pb-6">
             <section class="overflow-hidden py-2">
                 <div
                     v-for="(song, index) in chapters"
@@ -184,7 +235,9 @@ const handleChapterClick = (s: Song, i: number) => {
                             {{ song.name }}
                         </p>
                     </div>
-                    <span class="song-duration shrink-0 text-xs text-primary/30">{{ formatDuration(song.duration) }}</span>
+                    <span class="song-duration text-primary/30 shrink-0 text-xs">{{
+                        formatDuration(song.duration)
+                    }}</span>
                 </div>
             </section>
         </div>

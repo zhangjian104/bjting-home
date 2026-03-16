@@ -417,3 +417,10 @@ export const getPopularAuthors = () => fetch('/sapi/authors/popular').then(r => 
  * 获取有声书库列表
  */
 export const getAudiobooks = () => fetch('/sapi/audiobooks').then(r => r.json());
+
+/**
+ * 获取有声书详情及章节列表
+ * @param bookId 书籍ID
+ */
+export const getAudiobookDetail = (bookId: string) =>
+    fetch(`/sapi/audiobooks/detail?bookId=${encodeURIComponent(bookId)}`).then(r => r.json());
