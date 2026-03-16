@@ -39,23 +39,23 @@ const playlistId = route.params.id;
 // 相似书单/歌单的数据类型接口
 interface SimilarPlaylist {
     id: number | string; // 书单 ID
-    name: string;        // 书单名称
+    name: string; // 书单名称
     coverImgUrl: string; // 封面图片地址
     trackCount?: number; // 包含的章节(歌曲)数
-    playCount?: number;  // 播放量
+    playCount?: number; // 播放量
     creator?: { nickname: string }; // 创建者信息
 }
 
 // 页面整体状态管理的类型接口
 interface PlaylistState {
     activeTab: 'songs' | 'comments' | 'similar'; // 当前选中的 Tab：章节列表 / 评论 / 相似推荐
-    playlistInfo: PlaylistInfo;                  // 书单详细信息（封面、标题、作者等）
-    isCollected: boolean;                        // 是否已收藏（用于前端状态模拟切换）
-    songs: SongData[];                           // 章节(歌曲)列表数据
-    newComment: string;                          // 用户输入的待发表新评论内容
-    comments: CommentItem[];                     // 评论列表数据
-    isPageLoading: boolean;                      // 页面是否正在加载中（控制骨架屏的显示和隐藏）
-    similarPlaylists: SimilarPlaylist[];         // 相似书单推荐列表
+    playlistInfo: PlaylistInfo; // 书单详细信息（封面、标题、作者等）
+    isCollected: boolean; // 是否已收藏（用于前端状态模拟切换）
+    songs: SongData[]; // 章节(歌曲)列表数据
+    newComment: string; // 用户输入的待发表新评论内容
+    comments: CommentItem[]; // 评论列表数据
+    isPageLoading: boolean; // 页面是否正在加载中（控制骨架屏的显示和隐藏）
+    similarPlaylists: SimilarPlaylist[]; // 相似书单推荐列表
 }
 
 // ==========================================
