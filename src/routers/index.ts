@@ -174,6 +174,14 @@ const router = createRouter({
                     ),
                 },
                 {
+                    path: '/book/:id',
+                    name: 'book', // 书籍/有声书详情页面
+                    component: responsive(
+                        () => import('@/pages/book.vue'),
+                        () => import('@/pages/mobile/book.vue')
+                    ),
+                },
+                {
                     path: '/local-music',
                     name: 'local-music', // 本地音乐页面
                     component: responsive(

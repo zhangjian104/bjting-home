@@ -247,7 +247,7 @@ onMounted(() => {
                                 :key="song.id"
                                 :song="song"
                                 :index="idx"
-                                :to="`/song/${song.id}`"
+                                :to="`/book/${song.id}`"
                                 class="stagger-item song-divider"
                             />
                         </div>
