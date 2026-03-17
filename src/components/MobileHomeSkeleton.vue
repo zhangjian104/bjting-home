@@ -6,7 +6,7 @@ const { t } = useI18n();
 
 <template>
     <div class="pb-4">
-        <section class="mb-6 px-4 pt-2">
+        <!-- <section class="mb-6 px-4 pt-2">
             <div class="relative h-44 w-full overflow-hidden rounded-2xl">
                 <div class="skeleton-bg absolute inset-0"></div>
                 <div class="animate-shimmer absolute inset-0"></div>
@@ -14,7 +14,7 @@ const { t } = useI18n();
                     <div v-for="i in 4" :key="i" class="skeleton-bar h-1.5 w-6 rounded-full"></div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <section class="mb-6 px-4">
             <div class="mb-4 flex items-center justify-between">
@@ -57,7 +57,7 @@ const { t } = useI18n();
                 </h2>
             </div>
             <div class="scrollbar-hide flex gap-3 overflow-x-auto px-4 pb-2">
-                <div v-for="i in 8" :key="i" class="flex shrink-0 flex-col items-center">
+                <div v-for="i in 4" :key="i" class="flex shrink-0 flex-col items-center">
                     <div class="relative mb-1.5 h-16 w-16 overflow-hidden rounded-full">
                         <div class="skeleton-bg absolute inset-0"></div>
                         <div class="animate-shimmer absolute inset-0"></div>
@@ -96,7 +96,7 @@ const { t } = useI18n();
             </div>
         </section>
 
-        <section class="px-4 pb-6">
+        <!-- <section class="px-4 pb-6">
             <div class="mb-4 flex items-center justify-between">
                 <h2 class="section-title">
                     <span
@@ -123,7 +123,7 @@ const { t } = useI18n();
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
     </div>
 </template>
 
