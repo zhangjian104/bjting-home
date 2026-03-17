@@ -261,7 +261,7 @@ const romaChecked = computed({
         </section>
 
         <div class="mt-8 text-center">
-            <p class="text-primary/30 text-xs">Glass Music Player</p>
+            <p class="text-primary/30 text-xs">{{ t('common.appName') }}</p>
         </div>
     </div>
 </template>

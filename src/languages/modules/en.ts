@@ -5,6 +5,7 @@ export default {
         playlistFallback: 'Playlist',
     },
     common: {
+        appName: 'Baijie Audio',
         detail: 'Detail',
         download: 'Download',
         show: 'Show',

@@ -5,6 +5,7 @@ export default {
         playlistFallback: '歌单',
     },
     common: {
+        appName: '白洁听书',
         detail: '详情',
         download: '下载',
         show: '显示',

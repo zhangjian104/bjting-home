@@ -16,8 +16,8 @@ const { showLogin } = toRefs(state);
     <header class="glass-nav flex items-center justify-between px-3 py-2">
         <div class="flex items-center gap-2">
             <router-link to="/" class="flex items-center gap-2">
-                <img src="/logo.svg" alt="logo" class="w-9 rounded" />
-                <h1 class="text-primary text-base font-semibold">Glass Music Player</h1>
+                <img src="/logo.png" alt="logo" class="w-9 rounded" />
+                <h1 class="text-primary text-base font-semibold">{{ t('common.appName') }}</h1>
             </router-link>
         </div>
         <div class="flex items-center gap-2">

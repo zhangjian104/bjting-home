@@ -82,8 +82,8 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
         <div class="flex items-center gap-5">
             <!-- Logo -->
             <div class="flex items-center gap-2.5">
-                <img src="/logo.svg" alt="logo" class="w-9" />
-                <h1 class="text-primary text-xl font-bold">Glass Music</h1>
+                <img src="/logo.png" alt="logo" class="w-9 rounded" />
+                <h1 class="text-primary text-xl font-bold">{{ t('common.appName') }}</h1>
             </div>
 
             <!-- 前进/后退按钮组 -->
