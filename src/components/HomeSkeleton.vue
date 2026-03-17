@@ -2,7 +2,7 @@
 <template>
     <div class="space-y-10 p-5 pb-8">
         <!-- Banner skeleton -->
-        <section>
+        <!-- <section>
             <div class="overflow-hidden rounded-2xl bg-white/5">
                 <div class="relative aspect-[2.2/0.6]">
                     <div class="animate-shimmer absolute inset-0"></div>
@@ -18,7 +18,7 @@
                 <span class="h-1.5 w-1.5 rounded-full bg-white/10"></span>
                 <span class="h-1.5 w-1.5 rounded-full bg-white/10"></span>
             </div>
-        </section>
+        </section> -->
 
         <!-- 推荐歌单 skeleton -->
         <section>
@@ -88,7 +88,7 @@
         </section>
 
         <!-- MV skeleton -->
-        <section>
+        <!-- <section>
             <div class="mb-6 flex items-baseline justify-between">
                 <div class="h-7 w-24 rounded-lg bg-white/10"></div>
                 <div class="h-4 w-14 rounded bg-white/8"></div>
@@ -107,6 +107,6 @@
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
     </div>
 </template>

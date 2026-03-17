@@ -87,7 +87,7 @@ onMounted(() => {
             <HomeSkeleton v-if="isLoading" />
             <div v-else class="space-y-10 p-5 pb-8">
                 <!-- ═══════ Banner 轮播 ═══════ -->
-                <section
+                <!-- <section
                     v-if="banners.length"
                     v-scroll-in="{ direction: 'up', duration: 0.8 }"
                     class="relative"
@@ -140,7 +140,7 @@ onMounted(() => {
                         </SwiperSlide>
                     </Swiper>
                     <div class="home-pagination mt-4 flex justify-center gap-1.5"></div>
-                </section>
+                </section> -->
 
                 <!-- ═══════ 推荐歌单 ═══════ -->
                 <section

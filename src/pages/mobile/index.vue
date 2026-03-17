@@ -117,7 +117,7 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                 <MobileHomeSkeleton />
             </template>
             <template v-else>
-                <section v-if="banners.length" class="mb-6 px-4 pt-2">
+                <!-- <section v-if="banners.length" class="mb-6 px-4 pt-2">
                     <Swiper
                         :modules="swiperModules"
                         :slides-per-view="1"
@@ -153,7 +153,7 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                             </a>
                         </SwiperSlide>
                     </Swiper>
-                </section>
+                </section> -->
 
                 <section class="mb-6 px-4">
                     <div class="mb-4 flex items-center justify-between">
