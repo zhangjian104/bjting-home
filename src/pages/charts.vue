@@ -166,7 +166,7 @@ onMounted(() => {
                 >
                     <div class="relative shrink-0">
                         <LazyImage
-                            :src="item.cover + '?param=100y100'"
+                            :src="item.cover"
                             :alt="item.name"
                             imgClass="h-12 w-12 rounded-lg object-cover shadow-md transition-transform duration-300 group-hover:scale-105"
                             wrapperClass="h-12 w-12"

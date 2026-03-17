@@ -406,21 +406,23 @@ export const recommendResource = () => httpGet('/recommend/resource');
 /** 获取私人 FM (电台) 的歌曲，根据用户喜好无尽推送 */
 export const personalFm = () => httpGet('/personal_fm');
 
-// ═══════ 有声小说自定义接口 (/sapi) ═══════
+// ═══════ 有声小说自定义接口 ═══════
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '/sapi';
 
 /**
  * 获取热门主播列表
  */
-export const getPopularAuthors = () => fetch('/sapi/authors/popular').then(r => r.json());
+export const getPopularAuthors = () => fetch(`${API_BASE}/authors/popular`).then(r => r.json());
 
 /**
  * 获取有声书库列表
  */
-export const getAudiobooks = () => fetch('/sapi/audiobooks').then(r => r.json());
+export const getAudiobooks = () => fetch(`${API_BASE}/audiobooks`).then(r => r.json());
 
 /**
  * 获取有声书详情及章节列表
  * @param bookId 书籍ID
  */
 export const getAudiobookDetail = (bookId: string) =>
-    fetch(`/sapi/audiobooks/detail?bookId=${encodeURIComponent(bookId)}`).then(r => r.json());
+    fetch(`${API_BASE}/audiobooks/detail?bookId=${encodeURIComponent(bookId)}`).then(r => r.json());

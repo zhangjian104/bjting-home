@@ -95,7 +95,7 @@ watch(
                         class="h-9 w-9 shrink-0 overflow-hidden rounded-full border border-white/10"
                     >
                         <LazyImage
-                            :src="comment.user.avatarUrl + '?param=60y60'"
+                            :src="comment.user.avatarUrl"
                             class="h-full w-full object-cover"
                         />
                     </div>

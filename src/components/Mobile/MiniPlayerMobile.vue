@@ -80,7 +80,7 @@ onUnmounted(() => {
             <div class="w-12 overflow-hidden rounded-lg" @click="$emit('open')">
                 <img
                     v-if="currentSong.cover"
-                    :src="currentSong.cover + '?param=200y200'"
+                    :src="currentSong.cover"
                     alt="cover"
                     class="h-full w-full object-cover"
                 />

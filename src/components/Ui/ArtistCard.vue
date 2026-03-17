@@ -37,7 +37,7 @@ const handleClick = async () => {
     left: ${rect.left}px;
     top: ${rect.top}px;
     border-radius: 50%;
-    background-image: url(${props.picUrl}?param=400y400);
+    background-image: url(${props.picUrl});
     background-size: cover;
     background-position: center;
     pointer-events: none;
@@ -188,7 +188,7 @@ const handleMouseLeave = () => {
             class="border-glass relative mb-2.5 aspect-square w-full overflow-hidden rounded-full border-2 shadow-lg transition-all duration-300 group-hover:border-pink-500 group-hover:shadow-pink-500/20"
         >
             <LazyImage
-                :src="picUrl + '?param=150y150'"
+                :src="picUrl"
                 :alt="name"
                 img-class="h-full w-full object-cover"
             />

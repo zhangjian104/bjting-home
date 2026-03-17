@@ -62,7 +62,7 @@ const playSongWithAnimation = async (song: Song, index: number, event?: MouseEve
             setPlaylist(props.songs, index);
 
             // 执行抛物线飞行动画
-            await flyTo(sourceCover, targetCover, song.cover + '?param=128x128', {
+            await flyTo(sourceCover, targetCover, song.cover || '', {
                 duration: 0.55,
                 ease: 'power2.out',
                 borderRadius: { from: '8px', to: '8px' },
@@ -237,7 +237,7 @@ const downloadSong = (song: Song, index: number) => {
                                 class="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg shadow-md transition-shadow group-hover:shadow-lg"
                             >
                                 <LazyImage
-                                    :src="(song.cover || '') + '?param=90y90'"
+                                    :src="song.cover || ''"
                                     :alt="t('components.songList.coverAlt')"
                                     imgClass="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     wrapperClass="h-full w-full"

@@ -618,7 +618,7 @@ onUnmounted(() => {
                     >
                         <img
                             v-if="state.circularCover"
-                            :src="state.circularCover + '?param=320x320'"
+                            :src="state.circularCover"
                             :alt="currentSong?.name"
                             class="h-full w-full object-cover"
                             style="backface-visibility: hidden"

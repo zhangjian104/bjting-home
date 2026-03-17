@@ -79,7 +79,7 @@ watch(
             >
                 <div class="relative aspect-video overflow-hidden rounded-2xl shadow-xl">
                     <LazyImage
-                        :src="mv.cover + '?param=400y225'"
+                        :src="mv.cover"
                         :alt="mv.title"
                         img-class="h-full w-full object-cover transition-all duration-500 group-hover:scale-110"
                     />

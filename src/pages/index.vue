@@ -25,6 +25,7 @@ import {
     type ArtistData,
     type MVData,
 } from '@/utils/transformers';
+import { getResourceUrl } from '@/utils';
 
 const { t } = useI18n();
 
@@ -62,7 +63,7 @@ const loadData = async () => {
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
             name: author.name,
-            picUrl: `/r2/${author.avatar_path}`,
+            picUrl: getResourceUrl(author.avatar_path, 'avatar'),
         }));
         state.mvs = transformMVs(m as Record<string, unknown>, 6);
     } finally {

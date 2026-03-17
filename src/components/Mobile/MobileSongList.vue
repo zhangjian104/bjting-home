@@ -57,7 +57,7 @@ const handleClick = (s: Song, i: number) => {
             <div class="song-cover relative h-14 w-14 shrink-0 overflow-hidden rounded-xl">
                 <LazyImage
                     v-if="song.cover"
-                    :src="song.cover + '?param=200y200'"
+                    :src="song.cover"
                     alt="cover"
                     imgClass="h-full w-full object-cover"
                 />
@@ -123,7 +123,7 @@ const handleClick = (s: Song, i: number) => {
             <div class="song-cover-small relative h-11 w-11 shrink-0 overflow-hidden rounded-lg">
                 <LazyImage
                     v-if="song.cover"
-                    :src="song.cover + '?param=100y100'"
+                    :src="song.cover"
                     alt="cover"
                     imgClass="h-full w-full object-cover"
                 />

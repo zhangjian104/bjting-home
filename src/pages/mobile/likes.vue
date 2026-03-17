@@ -26,7 +26,7 @@ const playSong = (s: any) => {
                 <div class="h-12 w-12 shrink-0 overflow-hidden rounded-lg">
                     <LazyImage
                         v-if="s.cover"
-                        :src="s.cover + '?param=200y200'"
+                        :src="s.cover"
                         alt="cover"
                         imgClass="h-full w-full object-cover"
                     />

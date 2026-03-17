@@ -95,7 +95,7 @@ const visualizerGradient = computed(() => {
 const extractCoverColors = async (coverUrl?: string) => {
     if (!coverUrl) return;
     try {
-        const palette = await getColorPalette(coverUrl + '?param=128x128');
+        const palette = await getColorPalette(coverUrl);
         state.footerGradient = palette.gradient;
     } catch (error) {
         console.error('Failed to extract footer colors:', error);
@@ -265,7 +265,7 @@ const emit = defineEmits(['show']);
                         :class="{ 'animate-pulse-subtle': isPlaying }"
                         :style="{
                             backgroundImage: state.displayCover
-                                ? `url(${state.displayCover + '?param=128x128'})`
+                                ? `url(${state.displayCover})`
                                 : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                         }"
                     >

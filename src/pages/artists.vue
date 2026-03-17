@@ -157,7 +157,7 @@ onMounted(() => loadArtists(true));
                 >
                     <div class="relative mb-3 aspect-square overflow-hidden rounded-full">
                         <LazyImage
-                            :src="artist.picUrl + '?param=300y300'"
+                            :src="artist.picUrl"
                             :alt="artist.name"
                             class="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />

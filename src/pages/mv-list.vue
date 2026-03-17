@@ -141,7 +141,7 @@ onMounted(() => {
                     >
                         <div class="relative aspect-video overflow-hidden">
                             <LazyImage
-                                :src="mv.cover + '?param=480y270'"
+                                :src="mv.cover"
                                 :alt="t('mvList.alt.cover')"
                                 imgClass="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                 wrapperClass="h-full w-full"

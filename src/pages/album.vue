@@ -61,7 +61,7 @@ onMounted(() => load());
                 <div class="absolute inset-0 overflow-hidden rounded-b-3xl">
                     <img
                         v-if="state.info?.picUrl"
-                        :src="state.info.picUrl + '?param=800y800'"
+                        :src="state.info.picUrl"
                         class="h-full w-full object-cover opacity-30"
                     />
                     <div
@@ -74,7 +74,7 @@ onMounted(() => load());
                         <div class="h-24 w-24 overflow-hidden rounded-xl ring-2 ring-white/20">
                             <img
                                 v-if="state.info?.picUrl"
-                                :src="state.info.picUrl + '?param=300y300'"
+                                :src="state.info.picUrl"
                                 class="h-full w-full object-cover"
                                 :alt="$t('albumPage.alt.cover')"
                             />

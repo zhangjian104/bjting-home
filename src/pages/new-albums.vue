@@ -105,7 +105,7 @@ onMounted(() => loadAlbums(true));
                 >
                     <div class="relative mb-3 aspect-square overflow-hidden rounded-lg">
                         <LazyImage
-                            :src="album.cover + '?param=300y300'"
+                            :src="album.cover"
                             :alt="album.name"
                             class="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />

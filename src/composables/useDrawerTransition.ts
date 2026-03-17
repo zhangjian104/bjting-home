@@ -28,7 +28,7 @@ export function useDrawerTransition(options: DrawerTransitionOptions) {
     /** 生成封面背景图 CSS 值 */
     const coverBgImage = () =>
         currentSong.value?.cover
-            ? `url(${currentSong.value.cover}?param=320x320)`
+            ? `url(${currentSong.value.cover})`
             : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
 
     /** 创建封面克隆 DOM 元素（固定定位，用于飞行动画） */

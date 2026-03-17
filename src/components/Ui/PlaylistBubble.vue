@@ -307,7 +307,7 @@ const totalDuration = computed(() => {
                                     >
                                         <img
                                             v-if="s.cover"
-                                            :src="s.cover + '?param=100y100'"
+                                            :src="s.cover"
                                             alt=""
                                             class="h-full w-full object-cover"
                                         />

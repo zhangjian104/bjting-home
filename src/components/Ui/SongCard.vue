@@ -88,7 +88,7 @@ const handleMouseLeave = () => {
             class="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl shadow-md"
         >
             <LazyImage
-                :src="song.cover + '?param=100y100'"
+                :src="song.cover"
                 alt="cover"
                 img-class="h-full w-full object-cover"
             />

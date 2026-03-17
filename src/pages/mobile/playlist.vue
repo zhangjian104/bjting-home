@@ -93,7 +93,7 @@ const toggleCollect = () => {
                 <div class="header-bg absolute inset-0 overflow-hidden">
                     <LazyImage
                         v-if="state.info.coverImgUrl"
-                        :src="state.info.coverImgUrl + '?param=400y400'"
+                        :src="state.info.coverImgUrl"
                         :alt="$t('components.songList.coverAlt')"
                         imgClass="h-full w-full object-cover scale-110"
                     />
@@ -105,7 +105,7 @@ const toggleCollect = () => {
                         <div class="cover-wrapper relative shrink-0">
                             <LazyImage
                                 v-if="state.info.coverImgUrl"
-                                :src="state.info.coverImgUrl + '?param=300y300'"
+                                :src="state.info.coverImgUrl"
                                 :alt="$t('components.songList.coverAlt')"
                                 imgClass="cover-image h-32 w-32 rounded-2xl object-cover"
                             />
@@ -127,7 +127,7 @@ const toggleCollect = () => {
                                 <div class="creator-info flex items-center gap-2">
                                     <img
                                         v-if="state.info.creatorAvatar"
-                                        :src="state.info.creatorAvatar + '?param=50y50'"
+                                        :src="state.info.creatorAvatar"
                                         alt=""
                                         class="h-5 w-5 rounded-full"
                                     />

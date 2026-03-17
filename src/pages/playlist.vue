@@ -330,7 +330,7 @@ const tabsWithCount = computed(() =>
                     <!-- 背景模糊图片 -->
                     <div class="absolute inset-0 overflow-hidden rounded-3xl">
                         <img
-                            :src="playlistInfo.coverImgUrl + '?param=100y100'"
+                            :src="playlistInfo.coverImgUrl"
                             class="h-full w-full scale-150 object-cover opacity-30 blur-3xl"
                         />
                         <div
@@ -348,7 +348,7 @@ const tabsWithCount = computed(() =>
                                         class="ring-glass aspect-square overflow-hidden rounded-3xl shadow-2xl ring-1"
                                     >
                                         <LazyImage
-                                            :src="playlistInfo.coverImgUrl + '?param=400y400'"
+                                            :src="playlistInfo.coverImgUrl"
                                             :alt="$t('components.songList.coverAlt')"
                                             imgClass="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             wrapperClass="h-full w-full"
@@ -385,7 +385,7 @@ const tabsWithCount = computed(() =>
                                     >
                                         <img
                                             v-if="playlistInfo.creatorAvatar"
-                                            :src="playlistInfo.creatorAvatar + '?param=80y80'"
+                                            :src="playlistInfo.creatorAvatar"
                                             class="ring-glass h-8 w-8 rounded-full ring-2"
                                         />
                                         <span class="text-primary font-medium">{{
@@ -575,7 +575,7 @@ const tabsWithCount = computed(() =>
                                 <div class="flex gap-4">
                                     <img
                                         v-if="comment.avatarUrl"
-                                        :src="comment.avatarUrl + '?param=100y100'"
+                                        :src="comment.avatarUrl"
                                         class="ring-glass h-11 w-11 shrink-0 rounded-full ring-2"
                                     />
                                     <div
@@ -637,7 +637,7 @@ const tabsWithCount = computed(() =>
                                             >
                                                 <img
                                                     v-if="reply.avatarUrl"
-                                                    :src="reply.avatarUrl + '?param=80y80'"
+                                                    :src="reply.avatarUrl"
                                                     class="ring-glass h-8 w-8 shrink-0 rounded-full ring-1"
                                                 />
                                                 <div class="min-w-0 flex-1">
@@ -701,7 +701,7 @@ const tabsWithCount = computed(() =>
                             >
                                 <div class="relative aspect-square overflow-hidden">
                                     <LazyImage
-                                        :src="pl.coverImgUrl + '?param=300y300'"
+                                        :src="pl.coverImgUrl"
                                         :alt="pl.name"
                                         imgClass="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                         wrapperClass="h-full w-full"

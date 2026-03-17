@@ -181,7 +181,7 @@ const formatTime = (t: number | string) => {
                                 >
                                     <img
                                         v-if="c.user?.avatarUrl"
-                                        :src="c.user?.avatarUrl + '?param=100y100'"
+                                        :src="c.user?.avatarUrl"
                                         class="h-full w-full object-cover"
                                         alt=""
                                     />
@@ -235,7 +235,7 @@ const formatTime = (t: number | string) => {
                                         <div class="h-6 w-6 shrink-0 overflow-hidden rounded-full">
                                             <img
                                                 v-if="r?.user?.avatarUrl"
-                                                :src="r.user.avatarUrl + '?param=50y50'"
+                                                :src="r.user.avatarUrl"
                                                 class="h-full w-full object-cover"
                                                 alt=""
                                             />

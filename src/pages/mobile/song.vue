@@ -94,7 +94,7 @@ const toggleLike = () => {
                     <div class="h-16 w-16 shrink-0 overflow-hidden rounded-xl">
                         <img
                             v-if="state.cover"
-                            :src="state.cover + '?param=300y300'"
+                            :src="state.cover"
                             alt="cover"
                             class="h-full w-full object-cover"
                         />

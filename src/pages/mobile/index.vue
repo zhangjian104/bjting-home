@@ -16,6 +16,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-cards';
 
 import { formatCount } from '@/utils/time';
+import { getResourceUrl } from '@/utils';
 import {
     transformBanners,
     transformPlaylists,
@@ -87,7 +88,7 @@ const loadHomeData = async () => {
                 name: book.title || book.name || '未知有声书',
                 artist: artistDisplay,
                 cover: book.cover_path
-                    ? `/r2/${book.cover_path}`
+                    ? getResourceUrl(book.cover_path, 'cover')
                     : book.cover || book.coverImgUrl || '',
                 duration: book.episode_count || 0, // 利用 duration 字段临时存储集数，组件里会判断拦截显示
                 album: book.category || '',
@@ -98,7 +99,7 @@ const loadHomeData = async () => {
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
             name: author.name,
-            picUrl: `/r2/${author.avatar_path}`,
+            picUrl: getResourceUrl(author.avatar_path, 'avatar'),
         }));
     } finally {
         state.isLoading = false;
@@ -177,7 +178,7 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                                 class="playlist-cover relative mb-2 aspect-square overflow-hidden rounded-xl"
                             >
                                 <LazyImage
-                                    :src="pl.coverImgUrl + '?param=200y200'"
+                                    :src="pl.coverImgUrl"
                                     :alt="pl.name"
                                     imgClass="h-full w-full object-cover transition-transform duration-300 group-active:scale-105"
                                 />
@@ -229,7 +230,7 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                                 class="artist-avatar relative mb-1.5 h-16 w-16 overflow-hidden rounded-full"
                             >
                                 <LazyImage
-                                    :src="artist.picUrl + '?param=100y100'"
+                                    :src="artist.picUrl"
                                     :alt="artist.name"
                                     imgClass="h-full w-full object-cover"
                                 />
@@ -282,7 +283,7 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                         >
                             <div class="mv-cover relative aspect-video overflow-hidden rounded-xl">
                                 <LazyImage
-                                    :src="mv.cover + '?param=320y180'"
+                                    :src="mv.cover"
                                     :alt="mv.name"
                                     imgClass="h-full w-full object-cover transition-transform duration-300 group-active:scale-105"
                                 />

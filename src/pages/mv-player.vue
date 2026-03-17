@@ -248,7 +248,7 @@ watch(
                                     >
                                         <img
                                             v-if="c.avatarUrl"
-                                            :src="c.avatarUrl + '?param=80y80'"
+                                            :src="c.avatarUrl"
                                             class="h-10 w-10 shrink-0 rounded-full object-cover"
                                         />
                                         <div
@@ -321,7 +321,7 @@ watch(
                                     >
                                         <div class="relative shrink-0 overflow-hidden rounded-xl">
                                             <LazyImage
-                                                :src="mv.cover + '?param=160y90'"
+                                                :src="mv.cover"
                                                 :alt="mv.title"
                                                 imgClass="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                 wrapperClass="h-18 w-32"

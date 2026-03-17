@@ -125,7 +125,7 @@ export function useGradientBackground(options: GradientBackgroundOptions) {
         }
 
         try {
-            const palette = await getColorPalette(coverUrl + '?param=320x320');
+            const palette = await getColorPalette(coverUrl);
 
             // 首次初始化
             if (state.bgAGradient.length === 0 && state.bgBGradient.length === 0) {

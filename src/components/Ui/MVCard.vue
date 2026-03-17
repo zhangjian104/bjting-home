@@ -202,7 +202,7 @@ const handleClick = async () => {
     <div style="
       position: absolute;
       inset: 0;
-      background-image: url(${props.cover}?param=800y450);
+      background-image: url(${props.cover});
       background-size: cover;
       background-position: center;
     "></div>
@@ -334,7 +334,7 @@ const handleClick = async () => {
     >
         <div class="mv-card-inner relative aspect-video overflow-hidden rounded-2xl shadow-xl">
             <LazyImage
-                :src="cover + '?param=400y225'"
+                :src="cover"
                 :alt="name"
                 img-class="h-full w-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-75"
                 wrapper-class="h-full w-full"

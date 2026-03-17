@@ -119,7 +119,7 @@ const tabs = computed(() => [
                     <div class="absolute inset-0 overflow-hidden">
                         <img
                             v-if="state.info.picUrl"
-                            :src="state.info.picUrl + '?param=800y800'"
+                            :src="state.info.picUrl"
                             class="h-full w-full scale-110 object-cover opacity-20 blur-2xl"
                         />
                         <div
@@ -150,7 +150,7 @@ const tabs = computed(() => [
                                     >
                                         <img
                                             v-if="state.info.picUrl"
-                                            :src="state.info.picUrl + '?param=400y400'"
+                                            :src="state.info.picUrl"
                                             class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                             :alt="$t('layout.aside.menu.artists')"
                                         />
@@ -341,7 +341,7 @@ const tabs = computed(() => [
                                     class="relative mb-3 aspect-square w-full overflow-hidden rounded-xl"
                                 >
                                     <img
-                                        :src="al.picUrl + '?param=400y400'"
+                                        :src="al.picUrl"
                                         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
                                     <div

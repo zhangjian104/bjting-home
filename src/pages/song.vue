@@ -96,7 +96,7 @@ watch(songId, () => loadInfo());
                         class="group relative h-72 w-72 shrink-0 overflow-hidden rounded-2xl shadow-2xl"
                     >
                         <LazyImage
-                            :src="albumCover + '?param=300y300'"
+                            :src="albumCover"
                             alt="封面"
                             imgClass="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                             wrapperClass="h-full w-full"
@@ -263,7 +263,7 @@ watch(songId, () => loadInfo());
                                 >
                                     <div class="relative aspect-square overflow-hidden rounded-lg">
                                         <img
-                                            :src="pl.coverImgUrl + '?param=200y200'"
+                                            :src="pl.coverImgUrl"
                                             class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                                         />
                                         <div

@@ -456,7 +456,7 @@ watch(
                                     class="playlist-cover relative mb-3 aspect-square overflow-hidden rounded-2xl"
                                 >
                                     <LazyImage
-                                        :src="p.coverImgUrl + '?param=300y300'"
+                                        :src="p.coverImgUrl"
                                         :alt="p.name"
                                         imgClass="h-full w-full object-cover transition-all duration-500 group-active:scale-110"
                                     />
@@ -522,7 +522,7 @@ watch(
                                     class="mv-cover relative aspect-video overflow-hidden rounded-2xl"
                                 >
                                     <LazyImage
-                                        :src="m.cover + '?param=480y270'"
+                                        :src="m.cover"
                                         :alt="m.name"
                                         imgClass="h-full w-full object-cover transition-all duration-500 group-active:scale-105"
                                     />
