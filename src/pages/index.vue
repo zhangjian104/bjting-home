@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { banner, topPlaylist, topSong, topArtists, personalizedMv, getPopularAuthors } from '@/api';
+import { banner, topSong, topArtists, personalizedMv, getPopularAuthors, getAudiobooks } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
@@ -44,21 +44,26 @@ const { banners, recommendPlaylists, hotSongs, artists, mvs, isLoading } = toRef
 const loadData = async () => {
     state.isLoading = true;
     try {
-        const [b, p, s, m] = await Promise.all([
+        const [b, s, m] = await Promise.all([
             banner({ type: 0 }),
-            topPlaylist({ order: 'hot', limit: 20 }),
             topSong({ type: 0 }),
             personalizedMv(),
         ]);
 
         const authorsRes = await getPopularAuthors().catch(() => []);
+        const hotAudiobooksRes = await getAudiobooks('hot').catch(() => []);
 
         state.banners = transformBanners(b as Record<string, unknown>, 6);
-        state.recommendPlaylists = transformPlaylists(
-            p as Record<string, unknown>,
-            20,
-            t('home.playlistFallback')
-        );
+        
+        const booksList = Array.isArray(hotAudiobooksRes) ? hotAudiobooksRes : hotAudiobooksRes.data || [];
+        state.recommendPlaylists = booksList.slice(0, 10).map((book: any) => ({
+            id: book.id,
+            name: book.title || book.title_zh,
+            coverImgUrl: getResourceUrl(book.cover_path, 'cover'),
+            playCount: 0,
+            trackCount: book.episode_count || 0
+        }));
+
         state.hotSongs = transformTopSongs(s as Record<string, unknown>, 12);
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
@@ -172,7 +177,7 @@ onMounted(() => {
                             :title="item.name"
                             :play-count="item.playCount"
                             :track-count="item.trackCount"
-                            :to="`/playlist/${item.id}`"
+                            :to="`/book/${encodeURIComponent(String(item.id))}`"
                             class="stagger-item"
                         />
                     </div>

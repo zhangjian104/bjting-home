@@ -417,8 +417,9 @@ export const getPopularAuthors = () => fetch(`${API_BASE}/authors/popular`).then
 
 /**
  * 获取有声书库列表
+ * @param type 'hot' | 'normal' | string
  */
-export const getAudiobooks = () => fetch(`${API_BASE}/audiobooks`).then(r => r.json());
+export const getAudiobooks = (type: 'hot' | 'normal' | string = 'normal') => fetch(`${API_BASE}/audiobooks?type=${type}`).then(r => r.json());
 
 /**
  * 获取有声书详情及章节列表

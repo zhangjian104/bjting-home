@@ -1,6 +1,6 @@
 export default {
     home: {
-        recommendPlaylists: 'Recommended Playlists',
+        recommendPlaylists: 'Hot Recommendations',
         hotSongs: 'Hot Tracks',
         playlistFallback: 'Playlist',
     },

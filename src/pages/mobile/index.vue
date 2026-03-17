@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
     banner,
-    personalized,
     personalizedNewsong,
     personalizedMv,
     topArtists,
@@ -55,21 +54,24 @@ const { banners, playlists, newSongs, mvs, artists, isLoading } = toRefs(state);
 const loadHomeData = async () => {
     state.isLoading = true;
     try {
-        const [b, p, m] = await Promise.all([
+        const [b, m] = await Promise.all([
             banner({ type: 2 }),
-            personalized({ limit: 6 }),
             personalizedMv(),
         ]);
 
         const authorsRes = await getPopularAuthors().catch(() => []);
-        const audiobooksRes = await getAudiobooks().catch(() => []);
+        const audiobooksRes = await getAudiobooks('normal').catch(() => []);
+        const hotAudiobooksRes = await getAudiobooks('hot').catch(() => []);
 
         state.banners = transformBanners(b as Record<string, unknown>, 5);
-        state.playlists = transformPlaylists(
-            p as Record<string, unknown>,
-            6,
-            t('home.playlistFallback')
-        );
+        
+        const hotBooksList = Array.isArray(hotAudiobooksRes) ? hotAudiobooksRes : hotAudiobooksRes.data || [];
+        state.playlists = hotBooksList.slice(0, 6).map((book: any) => ({
+            id: book.id,
+            name: book.title || book.title_zh,
+            coverImgUrl: getResourceUrl(book.cover_path, 'cover'),
+            playCount: 0 
+        }));
 
         const booksList = Array.isArray(audiobooksRes) ? audiobooksRes : audiobooksRes.data || [];
         state.newSongs = booksList.slice(0, 6).map((book: any) => {
@@ -171,7 +173,7 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                         <router-link
                             v-for="pl in playlists"
                             :key="pl.id"
-                            :to="`/playlist/${pl.id}`"
+                            :to="`/book/${encodeURIComponent(String(pl.id))}`"
                             class="group"
                         >
                             <div

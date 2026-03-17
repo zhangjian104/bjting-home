@@ -1,6 +1,6 @@
 export default {
     home: {
-        recommendPlaylists: '推荐歌单',
+        recommendPlaylists: '热门推荐',
         hotSongs: '热门单曲',
         playlistFallback: '歌单',
     },
