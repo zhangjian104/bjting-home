@@ -117,7 +117,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                 <Button
                     v-for="link in [
                         {
-                            href: 'https://github.com/XiangZi7/GlassMusicPlayer',
+                            href: 'https://github.com/zhangjian104/bjting-home',
                             icon: 'icon-[mdi--github]',
                             label: t('layout.nav.repo'),
                         },

@@ -3,7 +3,7 @@ description: 项目上下文与有声小说改造说明
 alwaysApply: true
 ---
 
-# 项目上下文 (GlassMusicPlayer -> Audiobook Platform)
+# 项目上下文 (bjting-home Audiobook Platform)
 
 这是一个正在从“音乐播放器”改造成“有声小说平台”的 Vue 3 前端项目。
 
