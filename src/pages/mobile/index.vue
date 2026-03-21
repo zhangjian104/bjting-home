@@ -9,7 +9,6 @@ import 'swiper/css/effect-cards';
 
 import { formatCount } from '@/utils/time';
 import type { PlaylistData, SongData, ArtistData } from '@/utils/transformers';
-import { getResourceUrl } from '@/utils';
 
 const { t } = useI18n();
 
@@ -40,7 +39,7 @@ const loadHomeData = async () => {
         state.playlists = hotBooksList.slice(0, 6).map((book: any) => ({
             id: book.id,
             name: book.title || book.title_zh,
-            coverImgUrl: getResourceUrl(book.cover_path, 'cover'),
+            coverImgUrl: book.cover_url,
             playCount: 0 
         }));
 
@@ -60,9 +59,7 @@ const loadHomeData = async () => {
                 id: book.id,
                 name: book.title || book.name || '未知有声书',
                 artist: artistDisplay,
-                cover: book.cover_path
-                    ? getResourceUrl(book.cover_path, 'cover')
-                    : book.cover || book.coverImgUrl || '',
+                cover: book.cover_url || book.cover || book.coverImgUrl || '',
                 duration: book.episode_count || 0, // 利用 duration 字段临时存储集数，组件里会判断拦截显示
                 album: book.category || '',
             };
@@ -72,7 +69,7 @@ const loadHomeData = async () => {
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
             name: author.name,
-            picUrl: getResourceUrl(author.avatar_path, 'avatar'),
+            picUrl: author.avatar_url,
         }));
     } finally {
         state.isLoading = false;

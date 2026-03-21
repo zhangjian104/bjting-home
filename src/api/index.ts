@@ -38,13 +38,3 @@ export const getAudiobookInfo = (bookId: string) =>
 export const getAudiobookEpisodes = (bookId: string) =>
     fetch(`${API_BASE}/audiobooks/episodes?bookId=${encodeURIComponent(bookId)}`).then(r => r.json());
 
-// ═══════ 歌曲播放 ═══════
-
-/**
- * 获取音频媒体流
- * @param key 音频文件的相对路径
- */
-export const getAudioMediaUrl = (key: string) => {
-    return `${API_BASE}/audiobooks/media?key=${encodeURIComponent(key)}`;
-};
-

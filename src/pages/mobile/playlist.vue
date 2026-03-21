@@ -8,8 +8,7 @@ import Button from '@/components/Ui/Button.vue';
 import { useI18n } from 'vue-i18n';
 // import { formatCount } from '@/utils/time';
 import type { SongData } from '@/utils/transformers';
-import { getAudiobookDetail, getAudiobookEpisodes } from '@/api';
-import { getResourceUrl } from '@/utils';
+
 
 const { t } = useI18n();
 
@@ -59,7 +58,7 @@ const load = async (id: number) => {
                 playCount: 0,
                 likes: '0',
                 category: detail.category,
-                coverImgUrl: getResourceUrl(detail.cover_path, 'cover'),
+                coverImgUrl: detail.cover_url,
             };
         }
 
@@ -70,8 +69,8 @@ const load = async (id: number) => {
             artist: (detail?.authors && detail.authors[0]) || '佚名',
             album: detail?.title || detail?.title_zh || '',
             duration: 0,
-            cover: getResourceUrl(detail?.cover_path, 'cover'),
-            url: getResourceUrl(ep.media_path, 'media'),
+            cover: detail?.cover_url,
+            url: ep.audio_url,
             fee: 0,
         }));
     } finally {

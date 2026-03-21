@@ -25,8 +25,7 @@ alwaysApply: true
 
 - **API 封装规范**：所有针对 `/sapi` 的新请求必须统一封装在 `src/api/index.ts` 中（例如 `export const getPopularAuthors = () => fetch('/sapi/authors/popular').then(r => r.json());`），严禁在 `.vue` 组件中直接调用 `fetch` 或 `axios`。
 - **API 接口**：统一走 `/sapi` 代理（映射到后端 `/api`）。本地实际指向 `http://127.0.0.1:8788`。
-- **静态资源 (R2)**：图片、音频等媒体资源统一走 `/r2` 代理，例如 `<img src="/r2/authors/ye_qiantong.png">`。本地实际指向 `http://127.0.0.1:5174`。
-- 资源访问不再使用 `?key=` 查询参数的形式，而是直接访问类似静态资源的绝对路径。
+- **静态资源 (CDN)**：图片、音频等媒体资源已经全部托管在 R2 存储桶并绑定了自定义域名。前端不再通过 `?key=` 查询参数或者本地服务代理的形式请求，而是通过后端 API 返回的绝对路径（例如 `https://cdn.bjting.com/book/shao-fu-bai-jie/cover.jpg`）直接访问资源。在部分未提供绝对路径的场景中，前端会用相对路径通过 `https://cdn.bjting.com/` 进行拼接。
 
 ## AI 交互规则
 

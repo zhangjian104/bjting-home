@@ -15,7 +15,6 @@ import { formatCount } from '@/utils/time';
 // 导入国际化插件 hooks
 import { useI18n } from 'vue-i18n';
 import { getAudiobookDetail, getAudiobookEpisodes } from '@/api';
-import { getResourceUrl } from '@/utils';
 
 // ==========================================
 // 路由与参数获取
@@ -113,7 +112,7 @@ const loadPlaylist = async (id: number) => {
                 category: detail.category,
                 emoji: state.playlistInfo.emoji,
                 gradient: pickGradient(),
-                coverImgUrl: getResourceUrl(detail.cover_path, 'cover'),
+                coverImgUrl: detail.cover_url,
             };
         }
 
@@ -124,8 +123,8 @@ const loadPlaylist = async (id: number) => {
             artist: (detail?.authors && detail.authors[0]) || '佚名',
             album: detail?.title || detail?.title_zh || '',
             duration: 0,
-            cover: getResourceUrl(detail?.cover_path, 'cover'),
-            url: getResourceUrl(ep.media_path, 'media'),
+            cover: detail?.cover_url,
+            url: ep.audio_url,
             fee: 0,
         }));
     } catch {

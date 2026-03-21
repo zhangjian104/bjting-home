@@ -5,7 +5,6 @@ import { useAudioStore } from '@/stores/modules/audio';
 import { useAudio } from '@/composables/useAudio';
 import type { Song } from '@/stores/interface';
 import { getAudiobookDetail } from '@/api';
-import { getResourceUrl } from '@/utils';
 import Button from '@/components/Ui/Button.vue';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 import SongList from '@/components/SongList.vue';
@@ -45,7 +44,7 @@ const loadBookDetail = async (id: string) => {
                 id: res.book.id,
                 name: res.book.title,
                 description: res.book.description,
-                coverImgUrl: res.book.cover_path ? getResourceUrl(res.book.cover_path, 'cover') : '',
+                coverImgUrl: res.book.cover_url,
                 creator: `作者：${authorStr} | 演播：${narratorStr}`,
                 playCount: 0, // 接口暂无
             };
@@ -59,7 +58,7 @@ const loadBookDetail = async (id: string) => {
                 album: bookInfo.value.name,
                 duration: (ep.duration_seconds || 0) * 1000,
                 cover: bookInfo.value.coverImgUrl,
-                url: ep.key ? getResourceUrl(ep.key, 'media') : '',
+                url: ep.audio_url,
             }));
         }
     } catch (e) {

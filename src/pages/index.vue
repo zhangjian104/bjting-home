@@ -14,7 +14,6 @@ import ArtistCard from '@/components/Ui/ArtistCard.vue';
 import MVCard from '@/components/Ui/MVCard.vue';
 import SongCard from '@/components/Ui/SongCard.vue';
 import type { PlaylistData, SongData, ArtistData } from '@/utils/transformers';
-import { getResourceUrl } from '@/utils';
 
 const { t } = useI18n();
 
@@ -39,7 +38,7 @@ const loadData = async () => {
         state.recommendPlaylists = booksList.slice(0, 10).map((book: any) => ({
             id: book.id,
             name: book.title || book.title_zh,
-            coverImgUrl: getResourceUrl(book.cover_path, 'cover'),
+            coverImgUrl: book.cover_url,
             playCount: 0,
             trackCount: book.episode_count || 0
         }));
@@ -48,7 +47,7 @@ const loadData = async () => {
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
             name: author.name,
-            picUrl: getResourceUrl(author.avatar_path, 'avatar'),
+            picUrl: author.avatar_url,
         }));
         state.mvs = [];
     } finally {

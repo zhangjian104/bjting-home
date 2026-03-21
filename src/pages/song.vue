@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { useLyrics } from '@/composables/useLyrics';
-import SongCommentsDialog from '@/components/Comments/SongCommentsDialog.vue';
+// import SongCommentsDialog from '@/components/Comments/SongCommentsDialog.vue';
 // import { songDetail, search } from '@/api';
 import { useAudio } from '@/composables/useAudio';
 import { formatDuration } from '@/utils/time';
@@ -287,6 +287,6 @@ watch(songId, () => loadInfo());
                 </div>
             </div>
         </div>
-        <SongCommentsDialog v-model:show="showComments" :song-id="songId" />
+        <!-- <SongCommentsDialog v-model:show="showComments" :song-id="songId" /> -->
     </div>
 </template>

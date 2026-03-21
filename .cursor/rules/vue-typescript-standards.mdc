@@ -22,5 +22,5 @@ alwaysApply: false
   正确示例：
   ```typescript
   // 使用 # 隔断后续组件中强制拼接的 ?param 字符串
-  picUrl: `http://127.0.0.1:5174/api/authors/avatar?key=${author.avatar_path}#`
+  picUrl: `https://cdn.bjting.com/${author.avatar_path}#`
   ```
