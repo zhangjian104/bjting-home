@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cloudSearch } from '@/api';
+// import { cloudSearch } from '@/api';
 import { useAudio } from '@/composables/useAudio';
 import { transformSearchSongs, type SongData } from '@/utils/transformers';
 
@@ -39,12 +39,13 @@ const fetchSongs = async () => {
     }
     state.isLoading = true;
     try {
-        const res = await cloudSearch({
-            keywords: term,
-            type: 1,
-            limit: props.limit ?? 40,
-            offset: props.offset ?? 0,
-        });
+        // const res = await cloudSearch({
+        //     keywords: term,
+        //     type: 1,
+        //     limit: props.limit ?? 40,
+        //     offset: props.offset ?? 0,
+        // });
+        const res = {};
         const { songs, total } = transformSearchSongs(res as Record<string, unknown>);
         state.results = songs;
         emit('loaded', state.results.length);

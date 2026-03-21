@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { topSong } from '@/api';
+// // // import { topSong } from '@/api';
 import { transformTopSongs, type SongData } from '@/utils/transformers';
 
 import { useI18n } from 'vue-i18n';
@@ -17,8 +17,9 @@ const state = reactive({ tab: 0 as 0 | 7 | 96 | 8 | 16, loading: true, songs: []
 const load = async (t: 0 | 7 | 96 | 8 | 16) => {
     state.loading = true;
     try {
-        const res = await topSong({ type: t });
-        state.songs = transformTopSongs(res as Record<string, unknown>);
+        // const res = await topSong({ type: t });
+        // state.songs = transformTopSongs(res as Record<string, unknown>);
+        state.songs = [];
     } finally {
         state.loading = false;
     }

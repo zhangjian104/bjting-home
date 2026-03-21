@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { playlistDetail, playlistTrackAll } from '@/api';
+// import { playlistDetail, playlistTrackAll } from '@/api';
+import { getAudiobookDetail, getAudiobookEpisodes } from '@/api';
 import { usePlayActions } from '@/composables/usePlayActions';
 import LazyImage from '@/components/Ui/LazyImage.vue';
-import PlaylistCommentsPopup from '@/components/Mobile/PlaylistCommentsPopup.vue';
+// import PlaylistCommentsPopup from '@/components/Mobile/PlaylistCommentsPopup.vue';
 import Button from '@/components/Ui/Button.vue';
 import { useI18n } from 'vue-i18n';
-import { formatCount } from '@/utils/time';
-import { transformPlaylistDetail, transformSongs, type SongData } from '@/utils/transformers';
+// import { formatCount } from '@/utils/time';
+import type { SongData } from '@/utils/transformers';
+import { getAudiobookDetail, getAudiobookEpisodes } from '@/api';
+import { getResourceUrl } from '@/utils';
 
 const { t } = useI18n();
 
@@ -40,23 +43,37 @@ const { playAll: playAllAction, shufflePlay: shufflePlayAction } = usePlayAction
 const load = async (id: number) => {
     try {
         const [detailRes, tracksRes] = await Promise.all([
-            playlistDetail({ id }),
-            playlistTrackAll({ id, limit: 100 }),
+            getAudiobookDetail(String(id)),
+            getAudiobookEpisodes(String(id)),
         ]);
 
-        const detail = transformPlaylistDetail(
-            detailRes as Record<string, unknown>,
-            t('home.playlistFallback')
-        );
+        const detail = detailRes?.data;
         if (detail) {
             state.info = {
-                ...detail,
-                playCount: formatCount(detail.playCount as number),
-                likes: formatCount(detail.likes as number),
+                name: detail.title || detail.title_zh,
+                description: detail.description,
+                creator: (detail.authors && detail.authors[0]) || '佚名',
+                creatorAvatar: '',
+                createTime: detail.create_time ? new Date(detail.create_time).toLocaleDateString() : '',
+                songCount: detail.episode_count,
+                playCount: 0,
+                likes: '0',
+                category: detail.category,
+                coverImgUrl: getResourceUrl(detail.cover_path, 'cover'),
             };
         }
 
-        state.songs = transformSongs(tracksRes as Record<string, unknown>);
+        const episodes = Array.isArray(tracksRes) ? tracksRes : tracksRes?.data || [];
+        state.songs = episodes.map((ep: any, index: number) => ({
+            id: String(id) + '_' + index,
+            name: ep.title || `第${ep.episode_number}集`,
+            artist: (detail?.authors && detail.authors[0]) || '佚名',
+            album: detail?.title || detail?.title_zh || '',
+            duration: 0,
+            cover: getResourceUrl(detail?.cover_path, 'cover'),
+            url: getResourceUrl(ep.media_path, 'media'),
+            fee: 0,
+        }));
     } finally {
         state.loading = false;
     }
@@ -217,11 +234,11 @@ const toggleCollect = () => {
                     icon-class="h-5 w-5"
                     @click="state.showComments = true"
                 />
-                <PlaylistCommentsPopup
+                <!-- <PlaylistCommentsPopup
                     v-model:show="state.showComments"
                     :id="playlistId"
                     type="playlist"
-                />
+                /> -->
             </div>
 
             <div class="flex-1 overflow-auto px-4 pb-6">

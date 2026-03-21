@@ -17,13 +17,11 @@ export default defineConfig(({ mode }) => {
             // 代理配置
             proxy: {
                 '/sapi': {
-                    target: 'http://127.0.0.1:8788',
+                    // 若需要连接正式接口，请在根目录创建 .env.local 文件并设置 VITE_SAPI_TARGET (例如：VITE_SAPI_TARGET=https://api.domain.com)
+                    // 代码库中不包含任何本地或正式环境的地址差异，保持仓库干净。
+                    target: viteEnv.VITE_SAPI_TARGET || 'http://127.0.0.1:8788',
                     changeOrigin: true,
                     rewrite: path => path.replace(/^\/sapi/, '/api'),
-                },
-                '/r2': {
-                    target: 'http://127.0.0.1:5174',
-                    changeOrigin: true,
                 },
                 '/api': {
                     target: 'https://neteasecloudmusicapi-2.onrender.com', // 因为 lulufm.app 本地 443 不通，退回到原始接口

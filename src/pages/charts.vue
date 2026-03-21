@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import SongList from '@/components/SongList.vue';
-import { topSong, toplist, playlistTrackAll } from '@/api';
+// // import { topSong, toplist, playlistTrackAll } from '@/api';
 import { usePlayActions } from '@/composables/usePlayActions';
-import { useI18n } from 'vue-i18n';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 import TabGroup from '@/components/Ui/TabGroup.vue';
 import Button from '@/components/Ui/Button.vue';
-import { transformTopSongs, transformSongs, type SongData } from '@/utils/transformers';
+import { type SongData } from '@/utils/transformers';
 
 const { t } = useI18n();
 const { playAll: playAllAction } = usePlayActions();
@@ -40,8 +39,9 @@ const newSongTypes = [
 const loadNewSongs = async () => {
     try {
         state.isLoading = true;
-        const res = await topSong({ type: activeType.value });
-        state.songs = transformTopSongs(res as Record<string, unknown>);
+        // const res = await topSong({ type: activeType.value });
+        // state.songs = transformTopSongs(res as Record<string, unknown>);
+        state.songs = [];
     } finally {
         state.isLoading = false;
     }
@@ -50,7 +50,8 @@ const loadNewSongs = async () => {
 const loadOfficialLists = async () => {
     try {
         state.isLoading = true;
-        const res: any = await toplist();
+        // const res: any = await toplist();
+        const res: any = null;
         const list: any[] = res?.list || res?.data?.list || [];
         state.officialLists = list.map((it: any) => ({
             id: it?.id,
@@ -73,8 +74,9 @@ const selectList = async (item: any) => {
     state.selectedList = item;
     state.listLoading = true;
     try {
-        const res = await playlistTrackAll({ id: item.id, limit: 100 });
-        state.listSongs = transformSongs(res as Record<string, unknown>, 100);
+        // const res = await playlistTrackAll({ id: item.id, limit: 100 });
+        // state.listSongs = transformSongs(res as Record<string, unknown>, 100);
+        state.listSongs = [];
     } finally {
         state.listLoading = false;
     }

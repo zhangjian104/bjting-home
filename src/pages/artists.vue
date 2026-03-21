@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { artistList } from '@/api';
+// // // import { artistList } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { transformArtists, type ArtistData } from '@/utils/transformers';
 
 const { t } = useI18n();
 
-interface ArtistItem extends ArtistData {
+interface ArtistItem extends Omit<ArtistData, 'alias'> {
     alias?: string;
 }
 
@@ -61,8 +61,9 @@ const loadArtists = async (reset = false) => {
         if (state.area !== -1) params.area = state.area;
         if (state.initial) params.initial = state.initial;
 
-        const res = await artistList(params);
-        const artists = transformArtists(res as Record<string, unknown>);
+        // const res = await artistList(params);
+        // const artists = transformArtists(res as Record<string, unknown>);
+        const artists: any[] = [];
 
         const mapped: ArtistItem[] = artists.map(it => ({
             ...it,

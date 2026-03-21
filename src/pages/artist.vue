@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { artistDetail, artistTopSong, artistAlbum } from '@/api';
+// // // import { artistDetail, artistTopSong, artistAlbum } from '@/api';
 import { usePlayActions } from '@/composables/usePlayActions';
 import { formatCount } from '@/utils/time';
 import TabGroup from '@/components/Ui/TabGroup.vue';
@@ -45,11 +45,14 @@ const { playAll: playAllAction, shufflePlay: shufflePlayAction } = usePlayAction
 const load = async (id: number) => {
     state.loading = true;
     try {
-        const [detailRes, songsRes, albumsRes] = await Promise.all([
-            artistDetail({ id }),
-            artistTopSong({ id }),
-            artistAlbum({ id, limit: 12 }),
-        ]);
+        // const [detailRes, songsRes, albumsRes] = await Promise.all([
+        //     artistDetail({ id }),
+        //     artistTopSong({ id }),
+        //     artistAlbum({ id, limit: 12 }),
+        // ]);
+        const detailRes: any = null;
+        const songsRes: any = null;
+        const albumsRes: any = null;
 
         const artist = transformArtistDetail(detailRes as Record<string, unknown>);
         if (artist) {
@@ -355,7 +358,7 @@ const tabs = computed(() => [
                                 <p class="truncate text-sm font-medium">{{ al.name }}</p>
                                 <p class="text-primary/50 mt-1 truncate text-xs">
                                     {{ al.publishTime }} ·
-                                    {{ $t('commonUnits.songsShort', al.size) }}
+                                    {{ $t('commonUnits.songsShort', al.size || 0) }}
                                 </p>
                             </div>
                         </div>

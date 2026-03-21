@@ -1,4 +1,4 @@
-import { lyric } from '@/api';
+// import { lyric } from '@/api';
 
 export interface LyricLine {
     time: number;
@@ -109,10 +109,13 @@ const fetchLyrics = async (id?: string | number, force = false) => {
         if (!force && lastId.value === id) return;
         if (loading.value) return;
         loading.value = true;
-        const res: any = await lyric({ id: String(id) });
-        const rawOri: string = res?.lrc?.lyric || '';
-        const rawTrans: string = res?.tlyric?.lyric || '';
-        const rawRoma: string = res?.romalrc?.lyric || '';
+        // const res: any = await lyric({ id: String(id) });
+        // const rawOri: string = res?.lrc?.lyric || '';
+        // const rawTrans: string = res?.tlyric?.lyric || '';
+        // const rawRoma: string = res?.romalrc?.lyric || '';
+        const rawOri: string = '';
+        const rawTrans: string = '';
+        const rawRoma: string = '';
         const ori = parseLrc(rawOri);
         const tran = parseLrc(rawTrans);
         const roma = parseLrc(rawRoma);

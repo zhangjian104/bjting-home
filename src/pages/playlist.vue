@@ -3,8 +3,6 @@
 // 导入外部依赖和模块
 // ==========================================
 // 导入 API 接口请求方法：书单详情、书单所有章节、新版评论、搜索
-import { playlistDetail, playlistTrackAll, commentNew, search } from '@/api';
-// 导入公共的播放操作组合式函数（包含：播放全部、随机播放）
 import { usePlayActions } from '@/composables/usePlayActions';
 // 导入项目通用的类型定义
 import { PlaylistInfo, PlaylistSong, CommentItem } from '@/typings';
@@ -16,14 +14,8 @@ import TabGroup from '@/components/Ui/TabGroup.vue';
 import { formatCount } from '@/utils/time';
 // 导入国际化插件 hooks
 import { useI18n } from 'vue-i18n';
-// 导入数据转换器，用于将接口返回的原始数据格式化为前端 UI 需要的数据结构
-import {
-    transformPlaylistDetail,
-    transformSongs,
-    transformSearchPlaylists,
-    type SongData,
-    type PlaylistData,
-} from '@/utils/transformers';
+import { getAudiobookDetail, getAudiobookEpisodes } from '@/api';
+import { getResourceUrl } from '@/utils';
 
 // ==========================================
 // 路由与参数获取
@@ -102,42 +94,43 @@ const pickGradient = (): string => gradients[Math.floor(Math.random() * gradient
  */
 const loadPlaylist = async (id: number) => {
     try {
-        // 使用 Promise.all 并发请求：同时获取"详情"和"所有曲目(章节)"
-        // 这样可以减少网络请求的整体等待时间
         const [detailRes, tracksRes] = await Promise.all([
-            playlistDetail({ id }),
-            playlistTrackAll({ id, limit: 100 }), // 限制一次性最多获取100条
+            getAudiobookDetail(String(id)),
+            getAudiobookEpisodes(String(id)),
         ]);
 
-        // 对原始的详情响应数据进行转换适配，提取出前端组件真正需要的字段
-        const detail = transformPlaylistDetail(
-            detailRes as Record<string, unknown>,
-            t('home.playlistFallback') // 提取失败时使用的默认兜底文案
-        );
-        // 如果转换成功，更新到页面的响应式状态中
+        const detail = detailRes?.data;
         if (detail) {
             state.playlistInfo = {
-                name: detail.name,
+                name: detail.title || detail.title_zh,
                 description: detail.description,
-                creator: detail.creator,
-                creatorAvatar: detail.creatorAvatar,
-                createTime: detail.createTime,
-                songCount: detail.songCount,
-                playCount: detail.playCount as number,
-                likes: String(detail.likes),
+                creator: (detail.authors && detail.authors[0]) || '佚名',
+                creatorAvatar: '',
+                createTime: detail.create_time ? new Date(detail.create_time).toLocaleDateString() : '',
+                songCount: detail.episode_count,
+                playCount: 0,
+                likes: '0',
                 category: detail.category,
                 emoji: state.playlistInfo.emoji,
                 gradient: pickGradient(),
-                coverImgUrl: detail.coverImgUrl,
+                coverImgUrl: getResourceUrl(detail.cover_path, 'cover'),
             };
         }
 
-        // 对原始的列表响应数据进行转换，映射为统一的 SongData 格式
-        state.songs = transformSongs(tracksRes as Record<string, unknown>, 100);
+        const episodes = Array.isArray(tracksRes) ? tracksRes : tracksRes?.data || [];
+        state.songs = episodes.map((ep: any, index: number) => ({
+            id: String(id) + '_' + index,
+            name: ep.title || `第${ep.episode_number}集`,
+            artist: (detail?.authors && detail.authors[0]) || '佚名',
+            album: detail?.title || detail?.title_zh || '',
+            duration: 0,
+            cover: getResourceUrl(detail?.cover_path, 'cover'),
+            url: getResourceUrl(ep.media_path, 'media'),
+            fee: 0,
+        }));
     } catch {
-        // 捕获异常（实际项目中可在此处增加全局的错误提示或日志上报）
+        // error handling
     } finally {
-        // 无论请求成功还是失败，请求结束后都必须取消页面的骨架屏加载状态
         state.isPageLoading = false;
     }
 };
@@ -149,28 +142,28 @@ const loadPlaylist = async (id: number) => {
 const loadComments = async (id: number) => {
     try {
         // 发送新版评论接口请求：type=2 (代表歌单/书单类型), sortType=1 (按时间降序排序)
-        const res = await commentNew({ id, type: 2, sortType: 1, pageNo: 1, pageSize: 10 });
-        // 兼容不同的后端数据返回结构
-        const list = (res as any)?.data?.comments || (res as any)?.comments || [];
-        if (Array.isArray(list)) {
-            // 将原始评论数据映射为前端 UI 所需的 CommentItem 结构
-            state.comments = list.map((c: any, i: number) => ({
-                username: c?.user?.nickname || t('comments.user'),
-                avatarGradient: gradients[i % gradients.length], // 给没有头像的用户分配一个随机渐变背景色
-                time: c?.time ? new Date(c.time).toLocaleString() : '', // 时间戳转本地易读字符串
-                content: c?.content || '',
-                likes: c?.likedCount || 0, // 点赞数
-                avatarUrl: c?.user?.avatarUrl || '',
-                // 嵌套解析并映射"回复(引用的评论)"信息
-                replies: (c?.beReplied || []).map((r: any) => ({
-                    username: r?.user?.nickname || t('comments.user'),
-                    avatarUrl: r?.user?.avatarUrl || '',
-                    avatarGradient: gradients[(i + 1) % gradients.length],
-                    time: '', // 原始接口如果未返回回复的时间，则留空
-                    content: r?.content || '',
-                })),
-            }));
-        }
+        // const res = await commentNew({ id, type: 2, sortType: 1, pageNo: 1, pageSize: 10 });
+        //         // // 兼容不同的后端数据返回结构
+        // const list = (res as any)?.data?.comments || (res as any)?.comments || [];
+        // if (Array.isArray(list)) {
+        //     // 将原始评论数据映射为前端 UI 所需的 CommentItem 结构
+        //     state.comments = list.map((c: any, i: number) => ({
+        //         username: c?.user?.nickname || t('comments.user'),
+        //         avatarGradient: gradients[i % gradients.length], // 给没有头像的用户分配一个随机渐变背景色
+        //         time: c?.time ? new Date(c.time).toLocaleString() : '', // 时间戳转本地易读字符串
+        //         content: c?.content || '',
+        //         likes: c?.likedCount || 0, // 点赞数
+        //         avatarUrl: c?.user?.avatarUrl || '',
+        //         // 嵌套解析并映射"回复(引用的评论)"信息
+        //         replies: (c?.beReplied || []).map((r: any) => ({
+        //             username: r?.user?.nickname || t('comments.user'),
+        //             avatarUrl: r?.user?.avatarUrl || '',
+        //             avatarGradient: gradients[(i + 1) % gradients.length],
+        //             time: '', // 原始接口如果未返回回复的时间，则留空
+        //             content: r?.content || '',
+        //         })),
+        //     }));
+        // }
     } catch {}
 };
 
@@ -179,20 +172,20 @@ const loadComments = async (id: number) => {
  * @param {string} name 当前书单的名称
  */
 const loadSimilarPlaylists = async (name: string) => {
-    try {
-        // 调用搜索接口：type=1000 代表专门搜索歌单/书单
-        const res = await search({ keywords: name, type: 1000 });
-        // 从搜索结果中提取并转换数据，限制最多取 12 个
-        const { playlists } = transformSearchPlaylists(res as Record<string, unknown>, 12);
-        // 映射并保存到状态的相似推荐列表中
-        state.similarPlaylists = playlists.map(pl => ({
-            id: pl.id,
-            name: pl.name,
-            coverImgUrl: pl.coverImgUrl,
-            trackCount: pl.trackCount,
-            playCount: pl.playCount,
-        }));
-    } catch {}
+    // try {
+    //     // 调用搜索接口：type=1000 代表专门搜索歌单/书单
+    //     const res = await search({ keywords: name, type: 1000 });
+    //     // 从搜索结果中提取并转换数据，限制最多取 12 个
+    //     const { playlists } = transformSearchPlaylists(res as Record<string, unknown>, 12);
+    //     // 映射并保存到状态的相似推荐列表中
+    //     state.similarPlaylists = playlists.map(pl => ({
+    //         id: pl.id,
+    //         name: pl.name,
+    //         coverImgUrl: pl.coverImgUrl,
+    //         trackCount: pl.trackCount,
+    //         playCount: pl.playCount,
+    //     }));
+    // } catch {}
 };
 
 // ==========================================
@@ -732,7 +725,7 @@ const tabsWithCount = computed(() =>
                                         {{ pl.name }}
                                     </p>
                                     <p class="text-primary/60 text-xs">
-                                        {{ $t('commonUnits.songsShort', pl.trackCount) }}
+                                        {{ $t('commonUnits.songsShort', pl.trackCount || 0) }}
                                         <span v-if="pl.creator"> • {{ pl.creator.nickname }}</span>
                                     </p>
                                 </div>

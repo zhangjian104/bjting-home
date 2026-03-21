@@ -10,6 +10,7 @@
     },
     "scripts": {
         "dev": "vite",
+        "deploy": "pnpm build && npx wrangler pages deploy dist --project-name bjting-home",
         "build": "vite build",
         "build:test": "vite build --mode test",
         "preview": "vite preview",

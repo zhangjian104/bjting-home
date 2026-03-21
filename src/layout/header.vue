@@ -275,7 +275,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
             </Button>
         </div>
     </header>
-    <LoginDialog v-if="showLogin" @close="showLogin = false" />
+    <!-- <LoginDialog v-if="showLogin" @close="showLogin = false" /> -->
 </template>
 
 <style scoped>

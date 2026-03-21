@@ -3,7 +3,8 @@
  * 核心模块：管理音频播放、播放列表、播放模式、音量等全部播放器状态
  */
 import { defineStore } from 'pinia';
-import { songUrlV1 } from '@/api';
+// src/stores/modules/audio.ts(6,10): error TS2305: Module '"@/api"' has no exported member 'songUrlV1'.
+// import { songUrlV1 } from '@/api';
 import { Song, PlayMode, AudioStoreState } from '../interface';
 import { useSettingsStore } from './settings';
 import piniaPersistConfig from '../persist';
@@ -295,12 +296,13 @@ export const useAudioStore = defineStore('audio', {
          */
         async _fetchAndApplyUrl() {
             if (!this.audio.currentSong) return;
-            const settingsStore = useSettingsStore();
-            const res: any = await songUrlV1({
-                id: String(this.audio.currentSong.id),
-                level: settingsStore.audioQuality,
-            });
-            const url: string = res?.data?.[0]?.url || res?.data?.data?.[0]?.url || res?.url || '';
+            // const settingsStore = useSettingsStore();
+            // const res: any = await songUrlV1({
+            //     id: String(this.audio.currentSong.id),
+            //     level: settingsStore.audioQuality,
+            // });
+            // const url: string = res?.data?.[0]?.url || res?.data?.data?.[0]?.url || res?.url || '';
+            const url: string = '';
             this.audio.currentSong.url = url;
             // 同步到播放列表对应项
             const idx = this.audio.currentIndex;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { albumNew } from '@/api';
+// import { newAlbum } from '@/api'; // 注释掉，因为目前接口文件没有导出
 import { useI18n } from 'vue-i18n';
 import { transformAlbums, type AlbumData } from '@/utils/transformers';
 
@@ -38,12 +38,13 @@ const loadAlbums = async (reset = false) => {
 
     try {
         state.isLoading = true;
-        const res = await albumNew({
-            area: state.area,
-            limit: state.limit,
-            offset: state.offset,
-        });
-        const albums = transformAlbums(res as Record<string, unknown>);
+        // const res = await albumNew({
+        //     area: state.area,
+        //     limit: state.limit,
+        //     offset: state.offset,
+        // });
+        // const albums = transformAlbums(res as Record<string, unknown>);
+        const albums: any[] = [];
 
         const mapped: AlbumItem[] = albums.map(it => ({
             ...it,

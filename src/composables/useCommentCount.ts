@@ -3,7 +3,7 @@
  * 根据歌曲 ID 自动获取并更新评论总数
  */
 import type { Ref } from 'vue';
-import { commentMusic } from '@/api';
+// import { commentMusic } from '@/api';
 
 export interface CommentCountOptions {
     /** 歌曲ID（响应式） */
@@ -28,8 +28,9 @@ export function useCommentCount(options: CommentCountOptions) {
 
         isLoading.value = true;
         try {
-            const res: any = await commentMusic({ id: Number(id), limit: 1, offset: 0 });
-            commentCount.value = Number(res?.data?.total ?? res?.total ?? res?.totalCount ?? 0);
+            // const res: any = await commentMusic({ id: Number(id), limit: 1, offset: 0 });
+            // commentCount.value = Number(res?.data?.total ?? res?.total ?? res?.totalCount ?? 0);
+            commentCount.value = 0;
         } catch {
             commentCount.value = 0;
         } finally {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { banner, topSong, topArtists, personalizedMv, getPopularAuthors, getAudiobooks } from '@/api';
+import { getAudiobooks, getPopularAuthors } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Navigation, Pagination, Autoplay, EffectCoverflow } from 'swiper/modules';
@@ -13,47 +13,27 @@ import HeroCard from '@/components/Ui/HeroCard.vue';
 import ArtistCard from '@/components/Ui/ArtistCard.vue';
 import MVCard from '@/components/Ui/MVCard.vue';
 import SongCard from '@/components/Ui/SongCard.vue';
-import {
-    transformBanners,
-    transformPlaylists,
-    transformTopSongs,
-    transformArtists,
-    transformMVs,
-    type BannerData,
-    type PlaylistData,
-    type SongData,
-    type ArtistData,
-    type MVData,
-} from '@/utils/transformers';
+import type { PlaylistData, SongData, ArtistData } from '@/utils/transformers';
 import { getResourceUrl } from '@/utils';
 
 const { t } = useI18n();
 
 const state = reactive({
-    banners: [] as BannerData[],
     recommendPlaylists: [] as PlaylistData[],
     hotSongs: [] as SongData[],
     artists: [] as ArtistData[],
-    mvs: [] as MVData[],
     isLoading: true,
     swiper: null as SwiperClass | null,
 });
 
-const { banners, recommendPlaylists, hotSongs, artists, mvs, isLoading } = toRefs(state);
+const { recommendPlaylists, hotSongs, artists, isLoading } = toRefs(state);
 
 const loadData = async () => {
     state.isLoading = true;
     try {
-        const [b, s, m] = await Promise.all([
-            banner({ type: 0 }),
-            topSong({ type: 0 }),
-            personalizedMv(),
-        ]);
 
         const authorsRes = await getPopularAuthors().catch(() => []);
         const hotAudiobooksRes = await getAudiobooks('hot').catch(() => []);
-
-        state.banners = transformBanners(b as Record<string, unknown>, 6);
         
         const booksList = Array.isArray(hotAudiobooksRes) ? hotAudiobooksRes : hotAudiobooksRes.data || [];
         state.recommendPlaylists = booksList.slice(0, 10).map((book: any) => ({
@@ -64,13 +44,13 @@ const loadData = async () => {
             trackCount: book.episode_count || 0
         }));
 
-        state.hotSongs = transformTopSongs(s as Record<string, unknown>, 12);
+        state.hotSongs = [];
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
             name: author.name,
             picUrl: getResourceUrl(author.avatar_path, 'avatar'),
         }));
-        state.mvs = transformMVs(m as Record<string, unknown>, 6);
+        state.mvs = [];
     } finally {
         state.isLoading = false;
     }

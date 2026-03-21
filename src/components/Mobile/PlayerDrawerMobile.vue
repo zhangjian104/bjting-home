@@ -10,7 +10,7 @@ import { useI18n } from 'vue-i18n';
 import MusicProgress from '@/components/Ui/MusicProgress.vue';
 import VolumeControlMobile from '@/components/Mobile/VolumeControlMobile.vue';
 import PlaylistDrawerMobile from '@/components/Mobile/PlaylistDrawerMobile.vue';
-import PlaylistCommentsPopup from '@/components/Mobile/PlaylistCommentsPopup.vue';
+// import PlaylistCommentsPopup from '@/components/Mobile/PlaylistCommentsPopup.vue';
 import Button from '@/components/Ui/Button.vue';
 import VinylDisc from '@/components/Player/VinylDisc.vue';
 
@@ -608,7 +608,7 @@ const playModeIcon = computed(() => {
         </div>
     </div>
     <!-- 评论弹窗 -->
-    <PlaylistCommentsPopup v-model:show="isCommentsOpen" :id="currentSong?.id ?? null" />
+    <!-- <PlaylistCommentsPopup v-model:show="isCommentsOpen" :id="currentSong?.id ?? null" /> -->
 </template>
 
 <style scoped>

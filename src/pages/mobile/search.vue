@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cloudSearch, searchSuggest, searchDefault } from '@/api';
+// import { cloudSearch, searchSuggest, searchDefault } from '@/api';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 import Pagination from '@/components/Ui/Pagination.vue';
 import { Song } from '@/stores/interface';
@@ -98,55 +98,56 @@ const {
 } = toRefs(state);
 
 const fetchDefault = async () => {
-    const res = await searchDefault();
-    const def = (res as any)?.data?.realkeyword || (res as any)?.data?.showKeyword || '';
-    state.placeholder = def || '';
+    // const res = await searchDefault();
+    // const def = (res as any)?.data?.realkeyword || (res as any)?.data?.showKeyword || '';
+    // state.placeholder = def || '';
 };
 
 const fetchSuggest = async () => {
     if (!state.q.trim()) return (state.suggest = []);
-    const res = await searchSuggest({ keywords: state.q, type: 'mobile' });
-    const list = (res as any)?.result?.allMatch || [];
-    state.suggest = list.map((i: any) => i.keyword).slice(0, 8);
+    // const res = await searchSuggest({ keywords: state.q, type: 'mobile' });
+    // const list = (res as any)?.result?.allMatch || [];
+    // state.suggest = list.map((i: any) => i.keyword).slice(0, 8);
+    state.suggest = [];
 };
 
 const fetchSongs = async () => {
     if (!state.q.trim()) return;
-    const res = await cloudSearch({
-        keywords: state.q,
-        type: 1,
-        limit: state.songPageSize,
-        offset: (state.songPage - 1) * state.songPageSize,
-    });
-    const { songs, total } = transformSearchSongs(res as Record<string, unknown>);
-    state.songs = songs;
-    state.songTotal = total;
+    // const res = await cloudSearch({
+    //     keywords: state.q,
+    //     type: 1,
+    //     limit: state.songPageSize,
+    //     offset: (state.songPage - 1) * state.songPageSize,
+    // });
+    // const { songs, total } = transformSearchSongs(res as Record<string, unknown>);
+    // state.songs = songs;
+    // state.songTotal = total;
 };
 
 const fetchPlaylists = async () => {
     if (!state.q.trim()) return;
-    const res = await cloudSearch({
-        keywords: state.q,
-        type: 1000,
-        limit: state.playlistPageSize,
-        offset: (state.playlistPage - 1) * state.playlistPageSize,
-    });
-    const { playlists, total } = transformSearchPlaylists(res as Record<string, unknown>);
-    state.playlists = playlists;
-    state.playlistTotal = total;
+    // const res = await cloudSearch({
+    //     keywords: state.q,
+    //     type: 1000,
+    //     limit: state.playlistPageSize,
+    //     offset: (state.playlistPage - 1) * state.playlistPageSize,
+    // });
+    // const { playlists, total } = transformSearchPlaylists(res as Record<string, unknown>);
+    // state.playlists = playlists;
+    // state.playlistTotal = total;
 };
 
 const fetchMVs = async () => {
     if (!state.q.trim()) return;
-    const res = await cloudSearch({
-        keywords: state.q,
-        type: 1004,
-        limit: state.mvPageSize,
-        offset: (state.mvPage - 1) * state.mvPageSize,
-    });
-    const { mvs, total } = transformSearchMVs(res as Record<string, unknown>);
-    state.mvs = mvs;
-    state.mvTotal = total;
+    // const res = await cloudSearch({
+    //     keywords: state.q,
+    //     type: 1004,
+    //     limit: state.mvPageSize,
+    //     offset: (state.mvPage - 1) * state.mvPageSize,
+    // });
+    // const { mvs, total } = transformSearchMVs(res as Record<string, unknown>);
+    // state.mvs = mvs;
+    // state.mvTotal = total;
 };
 
 const searchAll = async () => {

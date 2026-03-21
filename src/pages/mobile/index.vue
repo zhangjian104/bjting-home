@@ -1,12 +1,5 @@
 <script setup lang="ts">
-import {
-    banner,
-    personalizedNewsong,
-    personalizedMv,
-    topArtists,
-    getPopularAuthors,
-    getAudiobooks,
-} from '@/api';
+import { getPopularAuthors, getAudiobooks } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Autoplay, Pagination, EffectCards } from 'swiper/modules';
@@ -15,55 +8,33 @@ import 'swiper/css/pagination';
 import 'swiper/css/effect-cards';
 
 import { formatCount } from '@/utils/time';
+import type { PlaylistData, SongData, ArtistData } from '@/utils/transformers';
 import { getResourceUrl } from '@/utils';
-import {
-    transformBanners,
-    transformPlaylists,
-    transformSongs,
-    transformMVs,
-    transformArtists,
-    type BannerData,
-    type PlaylistData,
-    type SongData,
-    type MVData,
-    type ArtistData,
-} from '@/utils/transformers';
 
 const { t } = useI18n();
 
 interface HomeState {
-    banners: BannerData[];
     playlists: PlaylistData[];
     newSongs: SongData[];
-    mvs: MVData[];
     artists: ArtistData[];
     isLoading: boolean;
 }
 
 const state = reactive<HomeState>({
-    banners: [],
     playlists: [],
     newSongs: [],
-    mvs: [],
     artists: [],
     isLoading: true,
 });
 
-const { banners, playlists, newSongs, mvs, artists, isLoading } = toRefs(state);
+const { playlists, newSongs, artists, isLoading } = toRefs(state);
 
 const loadHomeData = async () => {
     state.isLoading = true;
     try {
-        const [b, m] = await Promise.all([
-            banner({ type: 2 }),
-            personalizedMv(),
-        ]);
-
         const authorsRes = await getPopularAuthors().catch(() => []);
         const audiobooksRes = await getAudiobooks('normal').catch(() => []);
         const hotAudiobooksRes = await getAudiobooks('hot').catch(() => []);
-
-        state.banners = transformBanners(b as Record<string, unknown>, 5);
         
         const hotBooksList = Array.isArray(hotAudiobooksRes) ? hotAudiobooksRes : hotAudiobooksRes.data || [];
         state.playlists = hotBooksList.slice(0, 6).map((book: any) => ({
@@ -97,7 +68,7 @@ const loadHomeData = async () => {
             };
         });
 
-        state.mvs = transformMVs(m as Record<string, unknown>, 4);
+        state.mvs = [];
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
             name: author.name,

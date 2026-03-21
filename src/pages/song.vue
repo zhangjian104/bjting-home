@@ -2,7 +2,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useLyrics } from '@/composables/useLyrics';
 import SongCommentsDialog from '@/components/Comments/SongCommentsDialog.vue';
-import { songDetail, search } from '@/api';
+// import { songDetail, search } from '@/api';
 import { useAudio } from '@/composables/useAudio';
 import { formatDuration } from '@/utils/time';
 import LazyImage from '@/components/Ui/LazyImage.vue';
@@ -64,22 +64,24 @@ const isCurrent = computed(() => {
 
 const loadInfo = async () => {
     try {
-        const res: any = await songDetail({ ids: String(songId.value) });
-        const song = Array.isArray(res?.songs) ? res.songs[0] : res?.songs;
+        // const res: any = await songDetail({ ids: String(songId.value) });
+        // const song = Array.isArray(res?.songs) ? res.songs[0] : res?.songs;
+        const res: any = null;
+        const song: any = null;
         state.info = song;
         const artistNameVal = Array.isArray(song?.ar)
             ? song.ar.map((a: any) => a.name).join(' / ')
             : song?.artists?.map((a: any) => a.name).join(' / ');
 
         // 搜索相似歌曲
-        const resSimSongs = await search({ keywords: artistNameVal || song?.name || '', type: 1 });
-        const { songs } = transformSearchSongs(resSimSongs as Record<string, unknown>, 12);
-        state.similarSongs = songs;
+        // const resSimSongs = await search({ keywords: artistNameVal || song?.name || '', type: 1 });
+        // const { songs } = transformSearchSongs(resSimSongs as Record<string, unknown>, 12);
+        // state.similarSongs = songs;
 
         // 搜索相关歌单
-        const resSimPls = await search({ keywords: song?.name || '', type: 1000 });
-        const { playlists } = transformSearchPlaylists(resSimPls as Record<string, unknown>, 6);
-        state.similarPlaylists = playlists;
+        // const resSimPls = await search({ keywords: song?.name || '', type: 1000 });
+        // const { playlists } = transformSearchPlaylists(resSimPls as Record<string, unknown>, 6);
+        // state.similarPlaylists = playlists;
     } catch {}
 };
 

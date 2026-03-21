@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { songDetail, lyric } from '@/api';
+// // // import { songDetail, lyric } from '@/api';
 import { useAudio } from '@/composables/useAudio';
 
 const route = useRoute();
@@ -35,7 +35,9 @@ const parseLrc = (raw: string) => {
 
 const load = async (id: string) => {
     try {
-        const [detailRes, lrcRes] = await Promise.all([songDetail({ ids: id }), lyric({ id })]);
+        // const [detailRes, lrcRes] = await Promise.all([songDetail({ ids: id }), lyric({ id })]);
+        const detailRes: any = null;
+        const lrcRes: any = null;
         const song =
             (detailRes as any)?.songs?.[0] ||
             (detailRes as any)?.data?.songs?.[0] ||

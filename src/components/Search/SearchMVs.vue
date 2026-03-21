@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cloudSearch } from '@/api';
+// import { cloudSearch } from '@/api';
 import { formatCount } from '@/utils/time';
 interface Props {
     keywords: string;
@@ -34,12 +34,13 @@ const fetchMVs = async () => {
     }
     try {
         state.loading = true;
-        const res: any = await cloudSearch({
-            keywords: term,
-            type: 1004,
-            limit: props.limit ?? 24,
-            offset: props.offset ?? 0,
-        });
+        // const res: any = await cloudSearch({
+        //     keywords: term,
+        //     type: 1004,
+        //     limit: props.limit ?? 24,
+        //     offset: props.offset ?? 0,
+        // });
+        const res: any = null;
         const list: any[] = res?.result?.mvs || [];
         state.results = list.map(it => ({
             id: Number(it?.id),

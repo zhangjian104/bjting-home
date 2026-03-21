@@ -6,7 +6,7 @@ import SearchMVs from '@/components/Search/SearchMVs.vue';
 import PageSkeleton from '@/components/PageSkeleton.vue';
 import TabGroup from '@/components/Ui/TabGroup.vue';
 import Button from '@/components/Ui/Button.vue';
-import { searchHotDetail, searchDefault } from '@/api';
+// // // import { searchHotDetail, searchDefault } from '@/api';
 import { useGlobalStore } from '@/stores/modules/global';
 import { storeToRefs } from 'pinia';
 
@@ -118,8 +118,9 @@ const clearHistory = () => {
 const fetchHotSearch = async () => {
     state.loadingHot = true;
     try {
-        const res: any = await searchHotDetail();
-        state.hotSearches = res?.data || [];
+        // const res: any = await searchHotDetail();
+        // state.hotSearches = res?.data || [];
+        state.hotSearches = [];
     } catch {
         state.hotSearches = [];
     } finally {
@@ -130,8 +131,9 @@ const fetchHotSearch = async () => {
 // 获取默认搜索词作为 placeholder
 const fetchPlaceholder = async () => {
     try {
-        const res: any = await searchDefault();
-        placeholder.value = res?.data?.showKeyword || res?.data?.realkeyword || '';
+        // const res: any = await searchDefault();
+        // placeholder.value = res?.data?.showKeyword || res?.data?.realkeyword || '';
+        placeholder.value = '';
     } catch {
         // 忽略
     }
@@ -469,7 +471,7 @@ const maxScore = computed(() => {
                             <span
                                 class="text-primary/15 w-10 shrink-0 text-right text-[10px] tabular-nums"
                             >
-                                {{ Math.round(item.score / 10000) }}w
+                                {{ Math.round((Number(item.score) || 0) / 10000) }}w
                             </span>
                         </button>
                     </div>

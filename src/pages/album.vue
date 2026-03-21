@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { albumDetail } from '@/api';
+// // // // import { albumDetail } from '@/api';
 import SongList from '@/components/SongList.vue';
 import PageSkeleton from '@/components/PageSkeleton.vue';
 import Button from '@/components/Ui/Button.vue';
@@ -26,9 +26,12 @@ const load = async () => {
     if (!albumId.value) return;
     state.loading = true;
     try {
-        const res = await albumDetail({ id: albumId.value });
-        const album = transformAlbumDetail(res as Record<string, unknown>);
-        const songs = extractArray(res as Record<string, unknown>, 'songs', 'data.songs');
+        // const res = await albumDetail({ id: albumId.value });
+        // const album = transformAlbumDetail(res as Record<string, unknown>);
+        // const songs = extractArray(res as Record<string, unknown>, 'songs', 'data.songs');
+        const res: any = null;
+        const album: any = null;
+        const songs: any[] = [];
 
         state.info = album;
         state.songs = songs.map((s: any) => ({

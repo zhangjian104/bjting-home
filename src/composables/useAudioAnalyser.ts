@@ -1,4 +1,4 @@
-import { ref, onUnmounted, computed } from 'vue';
+import { ref, shallowRef, onUnmounted, computed } from 'vue';
 
 export type VisualizerType = 'bars' | 'wave' | 'circular';
 
@@ -16,8 +16,8 @@ let globalSourceNode: MediaElementAudioSourceNode | null = null;
 let globalAnimationId: number | null = null;
 let globalIsInitialized = ref(false);
 let globalIsAnalysing = ref(false);
-let globalFrequencyData = ref<Uint8Array>(new Uint8Array(0));
-let globalTimeDomainData = ref<Uint8Array>(new Uint8Array(0));
+let globalFrequencyData = shallowRef<Uint8Array>(new Uint8Array(0));
+let globalTimeDomainData = shallowRef<Uint8Array>(new Uint8Array(0));
 
 export function useAudioAnalyser(options: AudioAnalyserOptions = {}) {
     const {
@@ -117,10 +117,10 @@ export function useAudioAnalyser(options: AudioAnalyserOptions = {}) {
             if (!globalIsAnalysing.value || !globalAnalyser) return;
 
             // 获取频域数据 (频谱)
-            globalAnalyser.getByteFrequencyData(globalFrequencyData.value);
+            globalAnalyser.getByteFrequencyData(globalFrequencyData.value as any);
 
             // 获取时域数据 (波形)
-            globalAnalyser.getByteTimeDomainData(globalTimeDomainData.value);
+            globalAnalyser.getByteTimeDomainData(globalTimeDomainData.value as any);
 
             // 继续下一帧
             globalAnimationId = requestAnimationFrame(analyse);

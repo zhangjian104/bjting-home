@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { albumDetail } from '@/api';
+// // // import { albumDetail } from '@/api';
 import { usePlayActions } from '@/composables/usePlayActions';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 import MobileSongList from '@/components/Mobile/MobileSongList.vue';
@@ -41,9 +41,12 @@ const { playAll: playAllAction, shufflePlay: shufflePlayAction } = usePlayAction
 const load = async (id: number) => {
     state.loading = true;
     try {
-        const res = await albumDetail({ id });
-        const album = transformAlbumDetail(res as Record<string, unknown>);
-        const songs = extractArray(res as Record<string, unknown>, 'songs', 'data.songs');
+        // const res = await albumDetail({ id });
+        // const album = transformAlbumDetail(res as Record<string, unknown>);
+        // const songs = extractArray(res as Record<string, unknown>, 'songs', 'data.songs');
+        const res: any = null;
+        const album: any = null;
+        const songs: any[] = [];
 
         if (album) {
             const raw = (res as any)?.album || (res as any)?.data?.album || {};

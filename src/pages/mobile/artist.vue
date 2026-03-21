@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { artistDetail, artistTopSong, artistAlbum } from '@/api';
+// // // import { artistDetail, artistTopSong, artistAlbum } from '@/api';
 import { usePlayActions } from '@/composables/usePlayActions';
 import Button from '@/components/Ui/Button.vue';
 import { useI18n } from 'vue-i18n';
@@ -44,11 +44,14 @@ const { playAll: playAllAction, shufflePlay: shufflePlayAction } = usePlayAction
 const load = async (id: number) => {
     state.loading = true;
     try {
-        const [detailRes, songsRes, albumsRes] = await Promise.all([
-            artistDetail({ id }),
-            artistTopSong({ id }),
-            artistAlbum({ id, limit: 10 }),
-        ]);
+        // const [detailRes, songsRes, albumsRes] = await Promise.all([
+        //     artistDetail({ id }),
+        //     artistTopSong({ id }),
+        //     artistAlbum({ id, limit: 10 }),
+        // ]);
+        const detailRes: any = null;
+        const songsRes: any = null;
+        const albumsRes: any = null;
 
         // 歌手详情
         const artist = transformArtistDetail(detailRes as Record<string, unknown>);
@@ -256,7 +259,7 @@ const tabs = ['artistPage.tabs.hotSongs', 'artistPage.tabs.albums'];
                                     </p>
                                     <p class="text-primary/60 text-[10px]">
                                         {{ album.publishTime }} ·
-                                        {{ $t('commonUnits.songsShort', album.size) }}
+                                        {{ $t('commonUnits.songsShort', album.size || 0) }}
                                     </p>
                                 </div>
                             </div>
