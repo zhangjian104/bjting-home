@@ -26,11 +26,7 @@ const state = reactive({
     similarPlaylists: [] as PlaylistData[],
 });
 
-onMounted(() => fetchLyrics(songId.value));
-watch(
-    () => route.params.id,
-    id => fetchLyrics(id as any)
-);
+onMounted(() => fetchLyrics(songId.value as any));
 
 const artistName = computed(() => {
     if (!state.info) return '';
@@ -86,7 +82,7 @@ const loadInfo = async () => {
 };
 
 onMounted(() => loadInfo());
-watch(songId, () => loadInfo());
+
 </script>
 
 <template>

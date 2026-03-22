@@ -53,7 +53,6 @@ const load = async () => {
     }
 };
 
-watch(albumId, () => load());
 onMounted(() => load());
 </script>
 

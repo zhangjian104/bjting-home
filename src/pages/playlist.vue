@@ -12,6 +12,7 @@ import Button from '@/components/Ui/Button.vue';
 import TabGroup from '@/components/Ui/TabGroup.vue';
 // 导入格式化工具函数（将数字转换为带单位的字符串，如万、亿）
 import { formatCount } from '@/utils/time';
+import { getValidCover } from '@/utils';
 // 导入国际化插件 hooks
 import { useI18n } from 'vue-i18n';
 import { getAudiobookDetail, getAudiobookEpisodes } from '@/api';
@@ -112,7 +113,7 @@ const loadPlaylist = async (id: number) => {
                 category: detail.category,
                 emoji: state.playlistInfo.emoji,
                 gradient: pickGradient(),
-                coverImgUrl: detail.cover_url,
+                coverImgUrl: getValidCover(detail.cover_url, 'book'),
             };
         }
 
@@ -123,7 +124,7 @@ const loadPlaylist = async (id: number) => {
             artist: (detail?.authors && detail.authors[0]) || '佚名',
             album: detail?.title || detail?.title_zh || '',
             duration: 0,
-            cover: detail?.cover_url,
+            cover: getValidCover(detail?.cover_url, 'book'),
             url: ep.audio_url,
             fee: 0,
         }));
@@ -194,28 +195,13 @@ const loadSimilarPlaylists = async (name: string) => {
 // 组件初始化挂载时（首次进入页面），解析 URL 中的 ID 并加载对应数据
 onMounted(() => {
     // 初始化加载播放列表
-    const idNum = Number(playlistId);
+    const idNum = Number(playlistId.value);
     if (!Number.isNaN(idNum) && idNum > 0) {
         state.isPageLoading = true; // 显示骨架屏
         loadPlaylist(idNum);
         loadComments(idNum);
     }
 });
-
-// 监听路由参数（URL ID）的变化
-// 场景说明：当用户从底部的"相似推荐"点击了另一个书单时，页面组件不会销毁重建（因为用的是同一个路由组件），
-// 此时只会触发 URL 参数变化。我们需要监听到这个变化，并重新发起请求加载新书单的数据。
-watch(
-    () => Number(route.params.id),
-    idNum => {
-        // 监听路由参数变化，加载新的播放列表
-        if (!Number.isNaN(idNum) && idNum > 0) {
-            state.isPageLoading = true; // 重新显示骨架屏
-            loadPlaylist(idNum);
-            loadComments(idNum);
-        }
-    }
-);
 
 // 监听当前书单名称的变化
 // 场景说明：当书单详情加载完毕并获取到名称后，以此名称作为关键词去请求获取"相似推荐"数据。

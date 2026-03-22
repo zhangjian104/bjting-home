@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
 // 移动端头部：左侧 Logo/标题，右侧搜索与登录入口
 const router = useRouter();
-import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
 // 搜索入口：跳转到搜索页

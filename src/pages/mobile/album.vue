@@ -83,15 +83,11 @@ const load = async (id: number) => {
     }
 };
 
-watch(
-    albumId,
-    id => {
-        if (!Number.isNaN(id) && id > 0) {
-            load(id);
-        }
-    },
-    { immediate: true }
-);
+onMounted(() => {
+    if (albumId.value && albumId.value > 0) {
+        load(albumId.value);
+    }
+});
 
 const playAll = () => playAllAction(state.songs);
 

@@ -5,6 +5,7 @@ import { useAudioStore } from '@/stores/modules/audio';
 import { useAudio } from '@/composables/useAudio';
 import type { Song } from '@/stores/interface';
 import { getAudiobookDetail } from '@/api';
+import { getValidCover } from '@/utils';
 import Button from '@/components/Ui/Button.vue';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 
@@ -30,7 +31,6 @@ const loadBookDetail = async (id: string) => {
     isLoading.value = true;
     try {
         const res = await getAudiobookDetail(id);
-
         if (res && res.book) {
             let authorStr = '佚名';
             let narratorStr = '佚名';
@@ -43,7 +43,7 @@ const loadBookDetail = async (id: string) => {
                 id: res.book.id,
                 name: res.book.title,
                 description: res.book.description,
-                coverImgUrl: res.book.cover_url,
+                coverImgUrl: getValidCover(res.book.cover_url, 'book'),
                 creator: `作者：${authorStr} | 演播：${narratorStr}`,
                 playCount: 0,
             };
@@ -68,20 +68,12 @@ const loadBookDetail = async (id: string) => {
 };
 
 onMounted(() => {
+    console.log('book id', route.params.id);
     const id = route.params.id as string;
     if (id) {
         loadBookDetail(id);
     }
 });
-
-watch(
-    () => route.params.id,
-    newId => {
-        if (newId) {
-            loadBookDetail(newId as string);
-        }
-    }
-);
 
 const hasPlayedBefore = computed(() => {
     const history = audioStore.audio.playHistory || [];

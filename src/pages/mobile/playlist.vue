@@ -7,6 +7,7 @@ import LazyImage from '@/components/Ui/LazyImage.vue';
 import Button from '@/components/Ui/Button.vue';
 import { useI18n } from 'vue-i18n';
 // import { formatCount } from '@/utils/time';
+import { getValidCover } from '@/utils';
 import type { SongData } from '@/utils/transformers';
 
 
@@ -58,7 +59,7 @@ const load = async (id: number) => {
                 playCount: 0,
                 likes: '0',
                 category: detail.category,
-                coverImgUrl: detail.cover_url,
+                coverImgUrl: getValidCover(detail.cover_url, 'book'),
             };
         }
 
@@ -69,7 +70,7 @@ const load = async (id: number) => {
             artist: (detail?.authors && detail.authors[0]) || '佚名',
             album: detail?.title || detail?.title_zh || '',
             duration: 0,
-            cover: detail?.cover_url,
+            cover: getValidCover(detail?.cover_url, 'book'),
             url: ep.audio_url,
             fee: 0,
         }));

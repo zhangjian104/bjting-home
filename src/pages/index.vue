@@ -13,6 +13,7 @@ import HeroCard from '@/components/Ui/HeroCard.vue';
 import ArtistCard from '@/components/Ui/ArtistCard.vue';
 import MVCard from '@/components/Ui/MVCard.vue';
 import SongCard from '@/components/Ui/SongCard.vue';
+import { getValidCover } from '@/utils';
 import type { PlaylistData, SongData, ArtistData } from '@/utils/transformers';
 
 const { t } = useI18n();
@@ -38,7 +39,7 @@ const loadData = async () => {
         state.recommendPlaylists = booksList.slice(0, 10).map((book: any) => ({
             id: book.id,
             name: book.title || book.title_zh,
-            coverImgUrl: book.cover_url,
+            coverImgUrl: getValidCover(book.cover_url, 'book'),
             playCount: 0,
             trackCount: book.episode_count || 0
         }));
@@ -47,7 +48,7 @@ const loadData = async () => {
         state.artists = authorsRes.map((author: any) => ({
             id: author.id,
             name: author.name,
-            picUrl: author.avatar_url,
+            picUrl: getValidCover(author.avatar_url, 'author'),
         }));
         state.mvs = [];
     } finally {

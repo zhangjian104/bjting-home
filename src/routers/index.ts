@@ -29,9 +29,9 @@ const getHistory = () => {
  * @param desktopLoader 桌面端组件的动态导入函数 (如: () => import('...'))
  * @param mobileLoader 移动端组件的动态导入函数 (如: () => import('...'))
  */
-const responsive = (desktopLoader: () => Promise<any>, mobileLoader: () => Promise<any>) =>
+const responsive = (desktopLoader: () => Promise<any>, mobileLoader: () => Promise<any>, compName?: string) =>
     defineComponent({
-        name: 'ResponsiveRouteComponent',
+        name: compName || 'ResponsiveRouteComponent',
         setup() {
             // 使用 VueUse 的媒体查询钩子，实时监听窗口宽度是否小于等于 768px (即判断是否为移动端)
             const isMobile = useMediaQuery('(max-width: 768px)');
@@ -178,8 +178,12 @@ const router = createRouter({
                     name: 'book', // 书籍/有声书详情页面
                     component: responsive(
                         () => import('@/pages/book.vue'),
-                        () => import('@/pages/mobile/book.vue')
+                        () => import('@/pages/mobile/book.vue'),
+                        'BookPage'
                     ),
+                    beforeEnter: (to, from) => {
+                        console.log(`[Router] 进入了书籍详情页: ${to.params.id}`);
+                    },
                 },
                 {
                     path: '/local-music',

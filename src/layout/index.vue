@@ -89,10 +89,10 @@ const currentBackgroundProps = computed(
                     <!-- 左侧边栏 -->
                     <Aside />
                     <!-- 右侧主内容 -->
-                    <router-view v-slot="{ Component }">
+                    <router-view v-slot="{ Component, route }">
                         <transition appear name="fade-transform" mode="out-in">
-                            <keep-alive>
-                                <component :is="Component" />
+                            <keep-alive exclude="BookPage">
+                                <component :is="Component" :key="route.fullPath" />
                             </keep-alive>
                         </transition>
                     </router-view>
