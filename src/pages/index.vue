@@ -36,7 +36,7 @@ const loadData = async () => {
         const hotAudiobooksRes = await getAudiobooks('hot').catch(() => []);
         
         const booksList = Array.isArray(hotAudiobooksRes) ? hotAudiobooksRes : hotAudiobooksRes.data || [];
-        state.recommendPlaylists = booksList.slice(0, 10).map((book: any) => ({
+        state.recommendPlaylists = booksList.map((book: any) => ({
             id: book.id,
             name: book.title || book.title_zh,
             coverImgUrl: getValidCover(book.cover_url, 'book'),

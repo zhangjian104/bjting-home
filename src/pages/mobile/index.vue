@@ -37,7 +37,7 @@ const loadHomeData = async () => {
         const hotAudiobooksRes = await getAudiobooks('hot').catch(() => []);
         
         const hotBooksList = Array.isArray(hotAudiobooksRes) ? hotAudiobooksRes : hotAudiobooksRes.data || [];
-        state.playlists = hotBooksList.slice(0, 6).map((book: any) => ({
+        state.playlists = hotBooksList.map((book: any) => ({
             id: book.id,
             name: book.title || book.title_zh,
             coverImgUrl: getValidCover(book.cover_url, 'book'),
@@ -45,7 +45,7 @@ const loadHomeData = async () => {
         }));
 
         const booksList = Array.isArray(audiobooksRes) ? audiobooksRes : audiobooksRes.data || [];
-        state.newSongs = booksList.slice(0, 6).map((book: any) => {
+        state.newSongs = booksList.map((book: any) => {
             let authorStr = '佚名';
             let narratorStr = '佚名';
 
