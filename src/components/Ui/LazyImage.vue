@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useIntersectionObserver } from '@vueuse/core';
+import { ref, watch } from 'vue';
 const props = withDefaults(
     defineProps<{ src?: string; alt?: string; imgClass?: string; wrapperClass?: string }>(),
     {
@@ -13,9 +14,12 @@ const el = ref<HTMLElement | null>(null);
 const realSrc = ref<string>('');
 const isLoading = ref(false);
 const hasError = ref(false);
+const isIntersected = ref(false);
+
 useIntersectionObserver(
     el,
     ([entry]) => {
+        isIntersected.value = entry.isIntersecting;
         if (entry.isIntersecting && !realSrc.value && props.src) {
             realSrc.value = props.src;
             isLoading.value = true;
@@ -24,6 +28,24 @@ useIntersectionObserver(
     },
     { rootMargin: '300px' }
 );
+
+watch(
+    () => props.src,
+    (newSrc, oldSrc) => {
+        if (newSrc !== oldSrc) {
+            if (isIntersected.value && newSrc) {
+                realSrc.value = newSrc;
+                isLoading.value = true;
+                hasError.value = false;
+            } else {
+                realSrc.value = '';
+                isLoading.value = false;
+                hasError.value = false;
+            }
+        }
+    }
+);
+
 const handleLoad = () => {
     isLoading.value = false;
     hasError.value = false;

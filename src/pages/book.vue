@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useAudioStore } from '@/stores/modules/audio';
 import { useAudio } from '@/composables/useAudio';
 import type { Song } from '@/stores/interface';
+import type { AudiobookDetailResponse } from '@/typings/response';
 import { getAudiobookDetail } from '@/api';
 import { getValidCover } from '@/utils';
 import Button from '@/components/Ui/Button.vue';
@@ -31,16 +32,21 @@ const chapters = ref<Song[]>([]);
 const loadBookDetail = async (id: string) => {
     isLoading.value = true;
     try {
-        const res = await getAudiobookDetail(id);
-        console.log(res);
-        if (res && res.book) {
+        // 1. 调用 API 获取有声书详情数据，并断言为 AudiobookDetailResponse 类型
+        const res = (await getAudiobookDetail(id)) as AudiobookDetailResponse;
+        console.log('res', res);
+
+        // 2. 检查并提取书籍基本信息
+        if (res?.book) {
+            // 解析作者和演播者，防空处理
             let authorStr = '佚名';
             let narratorStr = '佚名';
-            if (res.book.authors && Array.isArray(res.book.authors)) {
-                if (res.book.authors[0]) authorStr = res.book.authors[0];
-                if (res.book.authors[1]) narratorStr = res.book.authors[1];
+            if (Array.isArray(res.book.authors)) {
+                authorStr = res.book.authors[0] || authorStr;
+                narratorStr = res.book.authors[1] || narratorStr;
             }
 
+            // 将接口数据映射到前端组件状态
             bookInfo.value = {
                 id: res.book.id,
                 name: res.book.title,
@@ -51,12 +57,15 @@ const loadBookDetail = async (id: string) => {
             };
         }
 
-        if (res && res.episodes && Array.isArray(res.episodes)) {
-            chapters.value = res.episodes.map((ep: any) => ({
+        // 3. 检查并提取章节列表信息
+        if (Array.isArray(res?.episodes)) {
+            // 遍历章节数组，映射为前端播放器支持的 Song 结构
+            chapters.value = res.episodes.map(ep => ({
                 id: ep.key,
                 name: ep.name,
                 artist: bookInfo.value.creator,
                 album: bookInfo.value.name,
+                // 后端返回秒数，前端播放器所需时长为毫秒
                 duration: (ep.duration_seconds || 0) * 1000,
                 cover: bookInfo.value.coverImgUrl,
                 url: ep.audio_url,
@@ -64,18 +73,25 @@ const loadBookDetail = async (id: string) => {
         }
     } catch (e) {
         console.error('Failed to load audiobook detail:', e);
+        // 发生异常时，至少保证 bookInfo 有一个安全的默认状态（特别是兜底图）
+        bookInfo.value = {
+            ...bookInfo.value,
+            coverImgUrl: getValidCover('', 'book'),
+        };
     } finally {
+        // 4. 数据加载完成或失败，关闭 loading 状态
         isLoading.value = false;
     }
 };
 
-onMounted(() => {
-    const id = route.params.id as string;
-    console.log('book id', id);
-    if (id) {
-        loadBookDetail(id);
-    }
-});
+watch(
+    () => route.params.id,
+    newId => {
+        console.log('book id', newId);
+        if (newId) loadBookDetail(newId as string);
+    },
+    { immediate: true }
+);
 
 // 计算是否播放过
 const hasPlayedBefore = computed(() => {
