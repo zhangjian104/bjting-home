@@ -9,6 +9,9 @@ import router from './routers';
 // vue i18n
 import I18n from '@/languages';
 
+// unhead
+import { createHead } from '@vueuse/head';
+
 // pinia
 import Pinia from '@/stores';
 
@@ -23,7 +26,9 @@ import { useWindowSize, useDebounceFn, usePreferredDark } from '@vueuse/core';
 import { animationDirectives } from '@/directives/animations';
 
 const app = createApp(App);
+const head = createHead();
 
+app.use(head);
 app.use(Pinia);
 app.use(router);
 app.use(I18n);

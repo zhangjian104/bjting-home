@@ -10,6 +10,7 @@ import { getValidCover } from '@/utils';
 import Button from '@/components/Ui/Button.vue';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 import SongList from '@/components/SongList.vue';
+import { useHead } from '@vueuse/head';
 
 const route = useRoute();
 const router = useRouter();
@@ -28,6 +29,20 @@ const bookInfo = ref({
 });
 
 const chapters = ref<Song[]>([]);
+
+useHead({
+    title: computed(() => (bookInfo.value.name !== '加载中...' ? `《${bookInfo.value.name}》` : '书籍详情')),
+    meta: [
+        {
+            name: 'description',
+            content: computed(() => bookInfo.value.description),
+        },
+        {
+            property: 'og:image',
+            content: computed(() => bookInfo.value.coverImgUrl),
+        },
+    ],
+});
 
 const loadBookDetail = async (id: string) => {
     isLoading.value = true;
