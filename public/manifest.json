@@ -1,0 +1,16 @@
+{
+  "name": "白洁听书 - 情感电台",
+  "short_name": "白洁听书",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#EE454A",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
