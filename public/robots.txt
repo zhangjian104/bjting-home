@@ -1,0 +1,11 @@
+# 白洁听书 - 爬虫规则
+# 构建后位于站点根路径 /robots.txt（Vite 从 public/ 原样复制）
+
+User-agent: *
+Allow: /
+
+# 本地/同域 API 代理路径，避免被当作网页收录
+Disallow: /sapi/
+
+# 上线 sitemap 后可取消注释并核对域名
+# Sitemap: https://www.bjting.com/sitemap.xml
