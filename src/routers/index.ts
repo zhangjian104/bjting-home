@@ -174,6 +174,17 @@ const router = createRouter({
                     ),
                 },
                 {
+                    path: '/audiobook/:id',
+                    name: 'legacy-audiobook', // 废弃路由
+                    redirect: to => {
+                        console.log(`[Router] 拦截废弃路由，重定向至 /book/${to.params.id}`);
+                        return {
+                            path: `/book/${to.params.id}`,
+                            query: to.query, // 保留原有的 URL 参数
+                        };
+                    },
+                },
+                {
                     path: '/book/:id',
                     name: 'book', // 书籍/有声书详情页面
                     component: responsive(

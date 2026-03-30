@@ -42,6 +42,12 @@ useHead({
             content: computed(() => bookInfo.value.coverImgUrl),
         },
     ],
+    link: [
+        {
+            rel: 'canonical',
+            href: computed(() => `https://bjting.com/book/${route.params.id}`),
+        },
+    ],
 });
 
 const loadBookDetail = async (id: string) => {
