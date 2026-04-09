@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/modules/user';
 import { gsap } from 'gsap';
 
 const route = useRoute();
@@ -37,17 +36,6 @@ const sections = [
     },
 ];
 
-const state = reactive({
-    // 用户创建的歌单列表
-    userPlaylists: [
-        { id: 1, name: '我喜欢的音乐' },
-        { id: 2, name: '华语流行' },
-        { id: 3, name: '二次元音乐' },
-        { id: 4, name: '轻音乐' },
-    ],
-});
-const { userPlaylists } = toRefs(state);
-const userStore = useUserStore();
 
 // 活动指示器相关
 const indicatorRef = ref<HTMLElement | null>(null);
@@ -144,28 +132,6 @@ const isActive = (path: string) => {
                 </div>
             </div>
 
-            <div class="mt-6" v-if="userStore.isLoggedIn">
-                <h4 class="text-primary/60 mb-3 text-sm font-medium">
-                    {{ $t('layout.aside.playlists.created') }}
-                </h4>
-                <div class="space-y-2">
-                    <div
-                        v-for="playlist in userPlaylists"
-                        :key="playlist.id"
-                        class="group flex cursor-pointer items-center space-x-3 rounded-lg p-2 transition-all duration-200 hover:bg-white/10"
-                    >
-                        <div
-                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-pink-400 to-purple-500 text-xs transition-transform duration-200 group-hover:scale-105"
-                        >
-                            {{ playlist.name.charAt(0) }}
-                        </div>
-                        <span
-                            class="text-primary/80 group-hover:text-primary truncate text-sm transition-colors"
-                            >{{ playlist.name }}</span
-                        >
-                    </div>
-                </div>
-            </div>
             <div class="hidden">
                 <span class="icon-[mdi--home] h-5 w-5"></span>
                 <span class="icon-[mdi--video] h-5 w-5"></span>

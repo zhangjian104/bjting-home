@@ -6,12 +6,10 @@ const router = useRouter();
 const { t } = useI18n();
 const state = reactive({
     searchQuery: '',
-    showLogin: false,
     historyOpen: false,
     searchFocused: false,
 });
-const { searchQuery, showLogin, historyOpen, searchFocused } = toRefs(state);
-const userStore = useUserStore();
+const { searchQuery, historyOpen, searchFocused } = toRefs(state);
 const globalStore = useGlobalStore();
 const { searchHistory, theme } = storeToRefs(globalStore);
 const themeIcon = computed(() => {
@@ -248,22 +246,12 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                 ></span>
             </Button>
 
-            <!-- 用户头像 / 登录按钮 -->
-            <div v-if="userStore.isLoggedIn" class="flex items-center gap-2">
-                <img
-                    :src="userStore.avatarUrl"
-                    alt="avatar"
-                    class="h-7 w-7 rounded-full object-cover ring-1 ring-white/10"
-                />
-                <span class="text-primary/90 text-sm">{{ userStore.nickname }}</span>
-            </div>
+            <!-- 用户区域：后续替换为 Clerk <SignInButton> / <UserButton> -->
             <Button
-                v-else
                 variant="glass"
                 size="sm"
                 rounded="lg"
                 class="gap-1.5 px-3.5 py-1.5"
-                @click="showLogin = true"
             >
                 <span class="icon-[ic--baseline-person-pin] h-4 w-4"></span>
                 {{ t('auth.login') }}
@@ -275,7 +263,6 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
             </Button>
         </div>
     </header>
-    <!-- <LoginDialog v-if="showLogin" @close="showLogin = false" /> -->
 </template>
 
 <style scoped>

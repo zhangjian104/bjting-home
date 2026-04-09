@@ -6,10 +6,6 @@ const { t } = useI18n();
 
 // 搜索入口：跳转到搜索页
 const goSearch = () => router.push('/search');
-
-// 登录入口：沿用 PC 逻辑，显示登录弹窗（若全局自动注册，可直接触发）
-const state = reactive({ showLogin: false });
-const { showLogin } = toRefs(state);
 </script>
 
 <template>
@@ -28,14 +24,13 @@ const { showLogin } = toRefs(state);
             >
                 <span class="icon-[mdi--magnify] h-5 w-5"></span>
             </button>
+            <!-- 登录入口：后续替换为 Clerk 组件 -->
             <button
                 class="hover:bg-hover-glass rounded-md p-2"
                 :title="t('auth.login')"
-                @click="showLogin = true"
             >
                 <span class="icon-[mdi--account] h-5 w-5"></span>
             </button>
         </div>
     </header>
-    <LoginDialog v-if="showLogin" @close="showLogin = false" />
 </template>

@@ -1,0 +1,190 @@
+---
+alwaysApply: false
+---
+
+# 数据收集
+
+## 1. 数据收集方式 posthog
+
+相关 token:
+Project token: phc_14waKjPPAxBdie0exNsOhuxnz6D6HoKgGYYJsriGtSZ
+
+Project ID : 360898 (Use this ID in the PostHog API.)
+
+Region: US Cloud
+
+Debug information:
+
+- Session: https://us.posthog.com/project/sTMFPsFhdP1Ssg/replay/019d6615-79d3-789a-8c2d-c72b89f7e812?t=539
+- Admin: http://go/adminOrgUS/019d38b1-3b6c-0000-72f2-ccd0416fd2d2 (project ID 360898)
+
+SDK setup
+
+```bash
+npm install posthog-js
+```
+
+```typescript
+import posthog from 'posthog-js';
+
+posthog.init('phc_14waKjPPAxBdie0exNsOhuxnz6D6HoKgGYYJsriGtSZ', {
+    api_host: 'https://us.i.posthog.com',
+    defaults: '2026-01-30',
+});
+```
+
+数据采集计划：
+
+好了，已经对项目做了全面探索。下面是完整的思维链分析。
+
+---
+
+## 一、现状盘点
+
+| 维度         | 现状                                                                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------- |
+| **已有统计** | `index.html` 中有 GA4 (`G-2GMSLM2MS1`) + 百度统计，但都是传统的 `<script>` 注入，**没有** SPA 路由切换的 pageview 补发  |
+| **PostHog**  | 仅在 `.cursor/rules/data-collection.mdc` 中记录了 token 和初始化示例，**未安装依赖、未集成代码**                        |
+| **路由层**   | `src/routers/index.ts` 中**没有** `beforeEach` / `afterEach` 钩子，SPA 场景下 GA4 和百度统计大概率只记录了首次 pageview |
+| **业务埋点** | `src/` 中完全没有任何 `track`、`analytics`、`posthog` 的业务调用                                                        |
+| **路由模式** | 默认 **hash 模式**（URL 带 `#`），PostHog / GA4 要正确追踪需注意此点                                                    |
+
+**结论**：当前数据采集基本处于"裸奔"状态 — 有 GA4 和百度但没有 SPA 适配，没有任何业务事件埋点。
+
+---
+
+## 二、采集需求分层分析
+
+### 第 1 层：基础设施 — PostHog SDK 接入
+
+需要做的事：
+
+1. **安装** `posthog-js` 依赖
+2. **在 `src/main.ts` 中初始化** PostHog，使用 `data-collection.mdc` 中提供的 token
+3. **创建 `src/utils/analytics.ts` 封装模块**，统一管理所有数据采集逻辑，避免散落在各处
+
+关键配置项需考虑：
+
+- `capture_pageview: false` — 关闭自动 pageview，改由路由钩子手动控制（SPA 必须）
+- `capture_pageleave: true` — 捕获页面离开
+- `autocapture: true` — 自动采集点击等交互（降低手动埋点成本）
+- `persistence: 'localStorage'` — 持久化用户标识
+- Session Replay 是否开启（需评估性能影响和隐私合规）
+
+### 第 2 层：路由级 — SPA Pageview 追踪
+
+在 `src/routers/index.ts` 添加 `router.afterEach` 钩子：
+
+- 每次路由切换后调用 `posthog.capture('$pageview')`
+- 同时补发 GA4 的 `gtag('event', 'page_view', ...)` — 当前的 GA4 在 SPA 中**只记录了首次加载的页面**
+- 需要处理 hash 模式下的 URL 格式，确保 PostHog 记录的是有意义的路径（如 `/book/123` 而非完整 hash）
+
+### 第 3 层：业务事件 — 核心行为追踪
+
+根据有声小说平台的业务特性，推荐采集以下事件：
+
+| 事件名                | 触发位置                           | 携带属性                                  | 优先级                 |
+| --------------------- | ---------------------------------- | ----------------------------------------- | ---------------------- |
+| `audiobook_play`      | `useAudio` / `audioStore` 播放动作 | book_id, chapter_id, chapter_name, author | P0                     |
+| `audiobook_pause`     | 暂停动作                           | book_id, chapter_id, played_duration      | P0                     |
+| `audiobook_complete`  | 章节播放完毕                       | book_id, chapter_id, total_duration       | P0                     |
+| `audiobook_seek`      | 进度条拖拽                         | book_id, from_time, to_time               | P1                     |
+| `search_query`        | 搜索页提交                         | keyword, result_count                     | P0                     |
+| `search_result_click` | 搜索结果点击                       | keyword, clicked_item_id, position        | P1                     |
+| `book_detail_view`    | 进入书籍详情页                     | book_id, book_name, source(from_route)    | P0                     |
+| `playlist_view`       | 进入书单详情页                     | playlist_id, playlist_name                | P1                     |
+| `like_action`         | 点击喜欢/收藏                      | item_type, item_id                        | P1                     |
+| `device_type`         | 初始化时                           | is_mobile, screen_width                   | P2（PostHog 自动采集） |
+
+### 第 4 层：用户标识
+
+- **匿名用户**：PostHog 自动生成 `distinct_id`
+- **登录用户**：在 `src/stores/modules/user.ts` 的登录成功后调用 `posthog.identify(userId, { ...userProperties })`
+- **登出时**：调用 `posthog.reset()` 清除关联
+
+---
+
+## 三、技术方案草图
+
+```
+src/
+├── utils/
+│   └── analytics.ts          ← 新增：统一封装模块
+├── main.ts                   ← 修改：初始化 PostHog
+├── routers/
+│   └── index.ts              ← 修改：添加 afterEach 钩子
+├── stores/modules/
+│   └── audio.ts              ← 修改：播放行为埋点
+│   └── user.ts               ← 修改：用户标识
+├── composables/
+│   └── useAudio.ts           ← 可能修改：播放控制层埋点
+└── pages/
+    └── search.vue            ← 修改：搜索埋点
+    └── mobile/search.vue     ← 修改：搜索埋点
+```
+
+`analytics.ts` 的职责：
+
+- 封装 `init()`、`trackPageView()`、`trackEvent(name, props)` 等方法
+- 内部同时调用 PostHog + GA4（如需要）
+- 提供环境判断（开发环境可关闭上报或开启 debug）
+
+---
+
+## 四、自我 Code Review（CR）
+
+### 需要注意的问题
+
+1. **Hash 模式兼容性**
+    - PostHog 默认通过 `window.location` 获取 URL，hash 模式下路径是 `/#/book/123` 这种形式
+    - 需要确认 PostHog 是否正确解析，或者在 `capture('$pageview')` 时手动传入 `$current_url`
+    - GA4 同理 — 当前 `gtag('config', ...)` 没有配置 `page_path`，SPA hash 变化不会自动上报
+
+2. **与现有 GA4 / 百度统计的共存**
+    - 不应删除 `index.html` 中已有的 GA4 和百度统计代码
+    - 建议在 `analytics.ts` 中统一管理，但初期可以让 PostHog 独立运作，不干扰现有统计
+    - 长期可考虑将 GA4 的 SPA pageview 也统一到 `afterEach` 中
+
+3. **性能影响**
+    - `posthog-js` 压缩后约 ~45KB，需评估是否会影响首屏加载
+    - 建议使用**异步加载**或在 `main.ts` 中延迟初始化（例如 `requestIdleCallback`）
+    - Session Replay 如果开启，额外网络开销较大，建议初期**关闭**或设为低采样率
+
+4. **数据隐私**
+    - PostHog 区域是 US Cloud，数据存储在美国
+    - 如果有国内用户访问，需考虑是否需要 cookie consent banner
+    - 建议 `autocapture` 开启但排除敏感元素（如密码输入框，虽然本站可能没有）
+
+5. **埋点代码的可维护性**
+    - 不要在 `.vue` 组件中直接调用 `posthog.capture()` — 与项目规范中 "API 不得直接在组件中调用" 的思路一致
+    - 统一通过 `analytics.ts` 封装层调用
+    - 事件名使用 `snake_case`，属性名也统一 `snake_case`
+
+6. **开发环境处理**
+    - 本地开发时应关闭数据上报或开启 PostHog 的 debug 模式，避免脏数据污染线上统计
+    - 可以通过 `import.meta.env.DEV` 判断
+
+7. **播放器埋点的时机选择**
+    - `audioStore` 是单例模式，播放状态集中管理 — 埋点适合放在 store 的 action 中
+    - 但要注意不要在 audio 的 `timeupdate` 等高频事件中做上报，避免请求风暴
+    - 建议播放进度采用**里程碑式上报**（25%/50%/75%/100%），而非连续上报
+
+8. **路由钩子中的上下文信息**
+    - `afterEach(to, from)` 中可以拿到 `to.name`、`to.path`、`to.params` — 这些都应该作为 pageview 的属性上报
+    - 特别是 `to.params.id`（书籍 ID、书单 ID 等），有助于后续分析内容热度
+
+---
+
+## 五、建议的实施步骤
+
+| 阶段        | 内容                                    | 改动文件                                                                 |
+| ----------- | --------------------------------------- | ------------------------------------------------------------------------ |
+| **Phase 1** | 安装 PostHog + 初始化 + 路由级 pageview | `package.json`, `main.ts`, `routers/index.ts`, 新增 `utils/analytics.ts` |
+| **Phase 2** | 播放行为埋点                            | `stores/modules/audio.ts` 或 `composables/useAudio.ts`                   |
+| **Phase 3** | 搜索/浏览/交互埋点                      | 涉及 `search.vue` 等业务页面                                             |
+| **Phase 4** | 用户标识对接                            | `stores/modules/user.ts`                                                 |
+| **Phase 5** | GA4 的 SPA pageview 补齐（可选）        | `utils/analytics.ts`, `routers/index.ts`                                 |
+
+---
+
+以上是完整的需求分析和自我 CR，尚未改动任何代码。确认方向后告诉我从哪个 Phase 开始实施。

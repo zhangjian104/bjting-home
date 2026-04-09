@@ -1,0 +1,205 @@
+---
+description: Clerk 认证集成方案与实施指南
+alwaysApply: false
+---
+
+# Clerk 认证集成
+
+本项目使用 Clerk 作为用户认证服务。以下为集成方案与约束。
+
+## 1. 技术选型
+
+- **SDK**：`@clerk/vue`（官方 Vue 3 SDK）
+- **框架适配**：Vue 3 + Vite，通过 `clerkPlugin` 注册
+- **环境变量前缀**：`VITE_CLERK_*`（Vite 要求 `VITE_` 前缀才能暴露给客户端）
+
+## 2. 环境变量
+
+```env
+# .env.local（不提交到 Git）
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_xxxxx
+```
+
+- **Publishable Key**：以 `pk_test_` 或 `pk_live_` 开头，可安全暴露给前端
+- **Secret Key**：以 `sk_` 开头，**严禁**出现在前端代码中，仅用于后端（Cloudflare Workers）
+- 从 [Clerk Dashboard API Keys](https://dashboard.clerk.com/last-active?path=api-keys) 获取
+
+## 3. 前端集成步骤
+
+### 3.1 安装依赖
+
+```bash
+pnpm add @clerk/vue
+```
+
+### 3.2 注册插件（`src/main.ts`）
+
+在现有的 `app.use(Pinia)` 之后、`app.mount('#app')` 之前注册：
+
+```typescript
+import { clerkPlugin } from '@clerk/vue';
+
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_PUBLISHABLE_KEY) {
+    throw new Error('缺少 VITE_CLERK_PUBLISHABLE_KEY 环境变量');
+}
+
+app.use(clerkPlugin, {
+    publishableKey: CLERK_PUBLISHABLE_KEY,
+    // 登录后重定向到首页
+    afterSignInUrl: '/',
+    afterSignUpUrl: '/',
+});
+```
+
+### 3.3 UI 组件使用
+
+Clerk 提供的 Vue 组件（按需使用）：
+
+```vue
+<script setup lang="ts">
+import { Show, SignInButton, SignUpButton, UserButton } from '@clerk/vue';
+</script>
+
+<template>
+    <!-- 未登录时显示 -->
+    <Show when="signed-out">
+        <SignInButton />
+        <SignUpButton />
+    </Show>
+    <!-- 已登录时显示 -->
+    <Show when="signed-in">
+        <UserButton />
+    </Show>
+</template>
+```
+
+### 3.4 Composables（获取用户信息）
+
+```typescript
+import { useUser, useAuth, useClerk } from '@clerk/vue';
+
+// 获取当前用户
+const { user, isSignedIn, isLoaded } = useUser();
+
+// 获取认证状态和 token
+const { userId, getToken } = useAuth();
+
+// 获取 Clerk 实例（登出等操作）
+const { signOut } = useClerk();
+```
+
+## 4. 与现有 User Store 的对接
+
+现有 `src/stores/modules/user.ts` 中的 `useUserStore` 需要与 Clerk 同步：
+
+### 对接策略
+
+- **Clerk 作为认证源**：用户登录/登出完全由 Clerk 管理
+- **Pinia Store 作为缓存层**：从 Clerk 同步用户信息到 store，供组件快捷访问
+- **不再手动管理 `isLoggedIn`**：改为由 Clerk 的 `isSignedIn` 驱动
+
+### UserProfile 映射
+
+```typescript
+// Clerk user → 本地 UserProfile
+{
+    userId: user.id,                    // Clerk 用户 ID（string 类型，注意原来是 number）
+    nickname: user.firstName || user.username || '',
+    avatarUrl: user.imageUrl || '',
+}
+```
+
+### 注意事项
+
+- Clerk 的 `user.id` 是 **string** 类型（如 `user_2xAbCd...`），原有 `UserProfile.userId` 是 **number**，需要将类型改为 `string`
+- 登出操作改为调用 `clerk.signOut()` 而非直接操作 store
+
+## 5. 路由守卫（可选）
+
+如果需要保护特定路由（如 `/likes`、`/my-music`），在 `src/routers/index.ts` 中添加：
+
+```typescript
+import { useAuth } from '@clerk/vue';
+
+router.beforeEach((to, from, next) => {
+    const { isSignedIn } = useAuth();
+    const requiresAuth = ['likes', 'my-music', 'recent'].includes(to.name as string);
+
+    if (requiresAuth && !isSignedIn.value) {
+        // 重定向到首页或触发登录
+        next({ name: 'home' });
+    } else {
+        next();
+    }
+});
+```
+
+> **注意**：当前项目大部分页面为公开内容（浏览书籍、播放等），仅收藏/历史等个人数据页面需要登录态。不要过度保护路由。
+
+## 6. 后端 Token 验证（Cloudflare Workers）
+
+前端通过 Clerk 获取 JWT Token，附带在请求头中：
+
+```typescript
+// src/api/index.ts 中的请求封装
+const { getToken } = useAuth();
+const token = await getToken();
+
+fetch('/sapi/xxx', {
+    headers: {
+        Authorization: `Bearer ${token}`,
+    },
+});
+```
+
+后端使用 Clerk 提供的后端 SDK 或 JWKS 验证 token 合法性。
+
+## 7. 与 PostHog 的联动
+
+Clerk 登录成功后，需要将用户身份同步到 PostHog：
+
+```typescript
+import posthog from 'posthog-js';
+
+// 登录后
+posthog.identify(user.id, {
+    email: user.primaryEmailAddress?.emailAddress,
+    name: user.fullName,
+});
+
+// 登出后
+posthog.reset();
+```
+
+## 8. 集成约束
+
+| 约束 | 说明 |
+|------|------|
+| **不自建登录页** | 使用 Clerk 托管的 Account Portal 或预构建组件，不自行实现登录表单 |
+| **Secret Key 隔离** | Secret Key 仅存在于 Cloudflare Workers 环境变量中，前端代码禁止引用 |
+| **渐进式集成** | 先接入 SDK 和登录按钮，再逐步添加路由保护和 API 鉴权，避免一次性大改 |
+| **Hash 模式兼容** | 本项目路由默认使用 hash 模式，Clerk 的重定向回调 URL 需要配置为带 `#` 的格式 |
+| **移动端适配** | 登录按钮在桌面端和移动端布局中分别放置（`src/layout/header.vue` 和 `src/layout/mobile/index.vue`）|
+
+## 9. 实施顺序
+
+| 阶段 | 内容 | 涉及文件 |
+|------|------|----------|
+| **Phase 1** | 安装 SDK + 注册插件 + 环境变量 | `package.json`, `main.ts`, `.env.local` |
+| **Phase 2** | 在 Header/布局中添加登录按钮 | `layout/header.vue`, `layout/mobile/index.vue` |
+| **Phase 3** | 改造 userStore 对接 Clerk | `stores/modules/user.ts` |
+| **Phase 4** | API 请求附带 Token | `api/index.ts` 或 `utils/http.ts` |
+| **Phase 5** | 路由守卫（按需） | `routers/index.ts` |
+| **Phase 6** | PostHog 用户标识联动 | `utils/analytics.ts` |
+
+## 10. Clerk Dashboard 配置清单
+
+在 [dashboard.clerk.com](https://dashboard.clerk.com) 中需要配置：
+
+- [ ] 应用名称设为「白洁听书」
+- [ ] 启用的登录方式（推荐：邮箱 + 手机号 + 微信/Google OAuth）
+- [ ] Allowed redirect URLs 中添加本站域名（含 hash 路由路径）
+- [ ] 品牌定制（logo、主题色 `#EE454A`）
+- [ ] 切换到 Production 实例时更新 Publishable Key

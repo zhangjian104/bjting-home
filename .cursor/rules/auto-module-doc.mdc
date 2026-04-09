@@ -1,0 +1,75 @@
+---
+description: 当涉及代码提问或修改时，自动识别模块并维护对应的 .cursor/rules/ 文档
+alwaysApply: true
+---
+
+# Auto Module Documentation
+
+## 规则如何生效（重要）
+
+- Cursor **不会**在后台单独跑任务；规则是写给 **当前对话里的 AI** 的指令，需要模型在回复里 **主动执行**（读代码、写 `.mdc`）。
+- `@.cursor/rules/auto-module-doc.mdc` 只是把该文件 **附加到上下文**，不相当于「自动执行一遍流程」。
+- `alwaysApply: true` 表示 **每条对话都会带上本规则全文**，但仍依赖模型遵守；若当轮只做改代码而漏写文档，属于 **未按规则执行**，可在同一会话里补一句：「按 auto-module-doc 补全架构文档」。
+
+**助手在修改了仓库内代码时的强制顺序**：先完成代码修改 → **再** 检查并创建/增量更新对应 `*-architecture.mdc` → 最后总结给用户。
+
+**多模块同轮改动（强制，防漏）**：
+
+- 若本轮 diff 触及 **≥2 个不同模块根路径**（例如同时改 `src/stores/modules/audio.ts`、`src/composables/useAudio.ts`、`src/routers/index.ts`），**每个被触及的模块**都必须有对应 `*-architecture.mdc` 的**新建或增量更新**。
+- 回复用户前在总结里 **显式列出**：`已更新文档：xxx-architecture.mdc、yyy-architecture.mdc`；若某模块无新信息可写，写 **「已对照 zzz-architecture.mdc，无需变更」** 并说明理由。
+- **禁止**在「改了很多文件」后以「口头说明」代替落盘文档。
+
+**助手在「只读代码」时的文档义务**（与是否产生 diff 无关）：
+
+- 若本轮为排查问题、根因分析、架构说明等，**已阅读多个相关源文件**并形成**可复用的模块级结论**（数据流、多实例行为、踩坑约定等），则必须在当轮对话内 **新建或增量更新** 对应 `<module>-architecture.mdc`，不得仅口头回复而不落盘。
+- 若结论已写在现有文档中且无新增信息，可只注明「已对照 `xxx-architecture.mdc`，无需变更」。
+
+---
+
+当用户提问涉及代码、修改代码、或分析代码时，执行以下流程：
+
+## Step 1：识别模块
+
+根据上下文中的文件路径识别模块（优先级从高到低）：
+
+1. **文件路径**（最高优先级）：
+   - `src/stores/modules/audio.ts` → module = `audio`
+   - `src/composables/useAudio.ts` → module = `audio`
+   - `src/pages/book.vue` → module = `book`
+   - `src/layout/header.vue` → module = `layout`
+   - `src/routers/index.ts` → module = `router`
+   - `src/api/index.ts` → module = `api`
+   - 规则：取目录名或文件名的核心业务含义，用 kebab-case
+
+2. **函数名**：`playAllAction` → module = `audio`
+
+3. **用户问题语义**：如 "播放器逻辑" → module = `audio`
+
+## Step 2：查找文档
+
+在 `.cursor/rules/` 下查找 `<module>-architecture.mdc`（如 `chat-main-architecture.mdc`）。
+
+## Step 3：处理逻辑
+
+### 文档不存在时
+
+1. 阅读相关代码文件
+2. 生成文档，包含：关键文件、核心函数、数据流、类型定义
+3. 写入 `.cursor/rules/<module>-architecture.mdc`，使用正确的 frontmatter：
+
+```
+---
+description: <模块描述>
+globs: <匹配该模块文件的 glob pattern>
+alwaysApply: false
+---
+```
+
+### 文档已存在时
+
+在以下任一情况后，对照代码检查文档一致性，**有差异则增量更新**（补丁式补充段落或章节，避免无意义全文重写）：
+
+1. **本对话中修改了该模块代码**
+2. **本对话中深度阅读该模块代码**并得出与文档不一致或文档未覆盖的结论
+
+## Step 4：继续执行用户原始请求
