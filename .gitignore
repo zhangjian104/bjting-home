@@ -30,6 +30,10 @@ dist-ssr
 
 .trae
 .claude
+.wrangler
+
+# 文章构建产出
+public/article/
 
 # 环境变量文件
 .env.*

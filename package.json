@@ -10,7 +10,8 @@
     },
     "scripts": {
         "dev": "vite",
-        "deploy": "pnpm build && npx wrangler pages deploy dist --project-name bjting-home",
+        "build:articles": "node scripts/build-articles.mjs",
+        "deploy": "pnpm build:articles && pnpm build && npx wrangler pages deploy dist --project-name bjting-home",
         "build": "vite build",
         "build:test": "vite build --mode test",
         "preview": "vite preview",
@@ -62,6 +63,8 @@
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.4",
         "eslint-plugin-vue": "^10.5.1",
+        "gray-matter": "^4.0.3",
+        "marked": "^18.0.2",
         "prettier": "^3.6.2",
         "sass-embedded": "^1.93.2",
         "typescript": "~5.9.3",
