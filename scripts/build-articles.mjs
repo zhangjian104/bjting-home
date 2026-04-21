@@ -236,6 +236,24 @@ function build() {
         'utf-8'
     );
 
+    // 生成文章 Sitemap
+    const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${articles.map(a => `  <url>
+    <loc>https://bjting.com/article/${a.slug}</loc>
+    <lastmod>${a.date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+    fs.writeFileSync(
+        path.join(ROOT, 'public', 'sitemap-articles.xml'),
+        sitemapXml,
+        'utf-8'
+    );
+    console.log(`✅ 生成 Sitemap: public/sitemap-articles.xml`);
+
     console.log(`🎉 构建完成！共 ${articles.length} 篇文章。`);
 }
 

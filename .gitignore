@@ -34,6 +34,7 @@ dist-ssr
 
 # 文章构建产出
 public/article/
+public/sitemap-articles.xml
 
 # 环境变量文件
 .env.*
