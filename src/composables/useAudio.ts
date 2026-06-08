@@ -3,7 +3,7 @@
  * 提供播放控制、音量控制、进度控制、播放列表管理、键盘快捷键等完整播放器功能
  * 是 audioStore 的响应式封装层，供组件直接使用
  */
-import { Song, PlayMode, type PlayContext } from '@/stores/interface';
+import { Song, PlayMode } from '@/stores/interface';
 import { formatTime } from '@/utils/audioUtils';
 
 export const useAudio = () => {
@@ -62,8 +62,8 @@ export const useAudio = () => {
     });
 
     // 播放控制方法
-    const play = (song?: Song, index?: number, context?: PlayContext) => {
-        audioStore.playSong(song, index, context);
+    const play = (song?: Song, index?: number) => {
+        audioStore.playSong(song, index);
     };
 
     const pause = () => {
@@ -149,8 +149,8 @@ export const useAudio = () => {
         audioStore.removeSongs(ids);
     };
 
-    const setPlaylist = (songs: Song[], startIndex?: number, context?: PlayContext) => {
-        audioStore.setPlaylist(songs, startIndex, context);
+    const setPlaylist = (songs: Song[], startIndex?: number) => {
+        audioStore.setPlaylist(songs, startIndex);
     };
 
     const playByIndex = (index: number) => {

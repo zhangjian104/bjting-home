@@ -150,7 +150,7 @@ onMounted(() => {
                         class="grid grid-cols-3 gap-3.5 sm:grid-cols-5 lg:grid-cols-7 xl:grid-cols-10"
                     >
                         <HeroCard
-                            v-for="(item, index) in recommendPlaylists"
+                            v-for="item in recommendPlaylists"
                             :key="item.id"
                             :id="item.id"
                             :cover-url="item.coverImgUrl"
@@ -158,8 +158,6 @@ onMounted(() => {
                             :play-count="item.playCount"
                             :track-count="item.trackCount"
                             :to="`/book/${encodeURIComponent(String(item.id))}`"
-                            section="recommend_playlists"
-                            :position="index"
                             class="stagger-item"
                         />
                     </div>
@@ -192,14 +190,12 @@ onMounted(() => {
                         class="grid grid-cols-4 gap-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12"
                     >
                         <ArtistCard
-                            v-for="(artist, index) in artists.slice(0, 12)"
+                            v-for="artist in artists.slice(0, 12)"
                             :key="artist.id"
                             :id="artist.id"
                             :name="artist.name"
                             :pic-url="artist.picUrl"
                             :to="`/artist/${artist.id}`"
-                            section="hot_artists"
-                            :position="index"
                             class="stagger-item"
                         />
                     </div>

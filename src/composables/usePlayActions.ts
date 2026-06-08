@@ -4,9 +4,7 @@
  * 消除各页面（playlist、artist、album、charts）中的重复代码
  */
 import { useAudio } from '@/composables/useAudio';
-import type { Song as StoreSong, PlayContext } from '@/stores/interface';
-import { trackPlayAll } from '@/utils/analytics';
-import type { PlaybackSourceType } from '@/utils/analyticsEvents';
+import type { Song as StoreSong } from '@/stores/interface';
 import type { SongData } from '@/utils/transformers';
 
 /**
@@ -72,39 +70,23 @@ export function usePlayActions() {
      * @param songs - 歌曲列表（SongData[] 或 StoreSong[]）
      * @param startIndex - 开始播放的索引，默认 0
      */
-    const playAll = (
-        songs: SongData[] | StoreSong[],
-        startIndex = 0,
-        source: PlaybackSourceType = 'playlist_page' as PlaybackSourceType
-    ) => {
+    const playAll = (songs: SongData[] | StoreSong[], startIndex = 0) => {
         if (!songs.length) return;
         const list = isStoreSongs(songs) ? songs : mapToStoreSongs(songs);
-        const bookId = list[0]?.albumId != null ? String(list[0].albumId) : undefined;
-        const ctx: PlayContext = { source, book_id: bookId };
-        trackPlayAll({
-            book_id: bookId,
-            chapter_count: list.length,
-            source,
-        });
-        setPlaylist(list, startIndex, ctx);
-        play(list[startIndex], startIndex, ctx);
+        setPlaylist(list, startIndex);
+        play(list[startIndex], startIndex);
     };
 
     /**
      * 随机播放 —— 打乱歌曲列表后从第一首开始播放
      * @param songs - 歌曲列表（SongData[] 或 StoreSong[]）
      */
-    const shufflePlay = (
-        songs: SongData[] | StoreSong[],
-        source: PlaybackSourceType = 'playlist_page' as PlaybackSourceType
-    ) => {
+    const shufflePlay = (songs: SongData[] | StoreSong[]) => {
         if (!songs.length) return;
         const list = isStoreSongs(songs) ? songs : mapToStoreSongs(songs);
         const shuffled = shuffleArray(list);
-        const bookId = shuffled[0]?.albumId != null ? String(shuffled[0].albumId) : undefined;
-        const ctx: PlayContext = { source, book_id: bookId };
-        setPlaylist(shuffled, 0, ctx);
-        play(shuffled[0], 0, ctx);
+        setPlaylist(shuffled, 0);
+        play(shuffled[0], 0);
     };
 
     return { playAll, shufflePlay, mapToStoreSong, mapToStoreSongs };

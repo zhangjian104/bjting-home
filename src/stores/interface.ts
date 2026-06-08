@@ -85,15 +85,7 @@ export interface AudioStoreState {
         previousVolume?: number;
         /** 是否正在缓冲等待（内部标记，用于区分用户暂停与缓冲暂停） */
         _isWaiting?: boolean;
-        /** 当前播放会话的埋点上下文 */
-        playContext: PlayContext;
     };
-}
-
-/** 播放埋点上下文（来源与书籍 ID） */
-export interface PlayContext {
-    source?: string;
-    book_id?: string;
 }
 
 /** 播放模式枚举 */

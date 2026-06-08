@@ -44,9 +44,9 @@ posthog.init('phc_14waKjPPAxBdie0exNsOhuxnz6D6HoKgGYYJsriGtSZ', {
 | 维度         | 现状                                                                                                                    |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------- |
 | **已有统计** | `index.html` 中有 GA4 (`G-2GMSLM2MS1`) + 百度统计，但都是传统的 `<script>` 注入，**没有** SPA 路由切换的 pageview 补发  |
-| **PostHog**  | **Phase 1 已落地**：`posthog-js` + `src/utils/analytics.ts` + `main.ts` 初始化 + `router.afterEach` pageview；dev 不上报 |
-| **路由层**   | PostHog SPA pageview 已由 `afterEach` 补齐；GA4/百度仍无 SPA 钩子                                                      |
-| **业务埋点** | Phase 1 仅 `$pageview` + autocapture + Session Replay；播放等业务事件待 Phase 2                                          |
+| **PostHog**  | 仅在 `.cursor/rules/data-collection.mdc` 中记录了 token 和初始化示例，**未安装依赖、未集成代码**                        |
+| **路由层**   | `src/routers/index.ts` 中**没有** `beforeEach` / `afterEach` 钩子，SPA 场景下 GA4 和百度统计大概率只记录了首次 pageview |
+| **业务埋点** | `src/` 中完全没有任何 `track`、`analytics`、`posthog` 的业务调用                                                        |
 | **路由模式** | 默认 **hash 模式**（URL 带 `#`），PostHog / GA4 要正确追踪需注意此点                                                    |
 
 **结论**：当前数据采集基本处于"裸奔"状态 — 有 GA4 和百度但没有 SPA 适配，没有任何业务事件埋点。

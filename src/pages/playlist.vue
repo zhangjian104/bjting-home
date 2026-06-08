@@ -240,12 +240,12 @@ const submitComment = () => {
 /**
  * 播放全部：将当前列表的所有章节加入全局播放器，并从第一项开始播放
  */
-const playAll = () => playAllAction(state.songs, 0, 'playlist_page');
+const playAll = () => playAllAction(state.songs);
 
 /**
  * 随机播放：将当前列表的所有章节加入全局播放器，并启用打乱的随机顺序进行播放
  */
-const shufflePlay = () => shufflePlayAction(state.songs, 'playlist_page');
+const shufflePlay = () => shufflePlayAction(state.songs);
 
 /**
  * 切换收藏状态（前端纯 UI 交互模拟，无真实接口调用）

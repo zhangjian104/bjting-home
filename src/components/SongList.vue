@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useAudio } from '@/composables/useAudio';
 import { useSharedElement } from '@/composables/useSharedElement';
-import type { Song, PlayContext } from '@/stores/interface';
-import { PlaybackSource, type PlaybackSourceType } from '@/utils/analyticsEvents';
+import type { Song } from '@/stores/interface';
 import { formatDuration } from '@/utils/time';
 import { RouterLink, useRouter } from 'vue-router';
 import LazyImage from '@/components/Ui/LazyImage.vue';
@@ -16,9 +15,6 @@ interface Props {
     showControls?: boolean;
     emptyMessage?: string;
     loading?: boolean;
-    /** 章节列表点击播放时的归因来源 */
-    playbackSource?: PlaybackSourceType;
-    bookId?: string;
 }
 
 interface Emits {
@@ -37,8 +33,6 @@ const props = withDefaults(defineProps<Props>(), {
     showControls: true,
     emptyMessage: '',
     loading: false,
-    playbackSource: PlaybackSource.BOOK_DETAIL_CHAPTER_LIST,
-    bookId: undefined,
 });
 
 const emit = defineEmits<Emits>();
@@ -47,16 +41,8 @@ const { setPlaylist, play, currentSong, isPlaying } = useAudio();
 const { t } = useI18n();
 const { flyTo, createRipple } = useSharedElement();
 
-const buildPlayContext = (): PlayContext => ({
-    source: props.playbackSource,
-    book_id:
-        props.bookId ??
-        (props.songs[0]?.albumId != null ? String(props.songs[0].albumId) : undefined),
-});
-
 // 歌曲封面飞行动画
 const playSongWithAnimation = async (song: Song, index: number, event?: MouseEvent) => {
-    const ctx = buildPlayContext();
     try {
         // 获取源封面元素和目标元素
         const sourceCover = document.getElementById(`song-cover-${song.id}`);
@@ -73,7 +59,7 @@ const playSongWithAnimation = async (song: Song, index: number, event?: MouseEve
         // 如果能获取到元素，执行飞行动画
         if (sourceCover && targetCover && song.cover) {
             // 先设置播放列表
-            setPlaylist(props.songs, index, ctx);
+            setPlaylist(props.songs, index);
 
             // 执行抛物线飞行动画
             await flyTo(sourceCover, targetCover, song.cover || '', {
@@ -83,13 +69,13 @@ const playSongWithAnimation = async (song: Song, index: number, event?: MouseEve
                 scale: { from: 1, to: 1 },
                 onComplete: () => {
                     // 动画完成后播放
-                    play(props.songs[index], index, ctx);
+                    play(props.songs[index], index);
                 },
             });
         } else {
             // 降级：直接播放
-            setPlaylist(props.songs, index, ctx);
-            play(props.songs[index], index, ctx);
+            setPlaylist(props.songs, index);
+            play(props.songs[index], index);
         }
 
         emit('play', song, index);

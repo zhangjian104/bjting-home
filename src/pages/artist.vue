@@ -85,9 +85,9 @@ onMounted(() => {
     }
 });
 
-const playAll = () => playAllAction(state.songs, 0, 'artist_page');
+const playAll = () => playAllAction(state.songs);
 
-const shufflePlay = () => shufflePlayAction(state.songs, 'artist_page');
+const shufflePlay = () => shufflePlayAction(state.songs);
 
 const toggleFollow = () => {
     state.followed = !state.followed;

@@ -91,9 +91,9 @@ watch(
     { immediate: true }
 );
 
-const playAll = () => playAllAction(state.songs, 0, 'playlist_page');
+const playAll = () => playAllAction(state.songs);
 
-const shufflePlay = () => shufflePlayAction(state.songs, 'playlist_page');
+const shufflePlay = () => shufflePlayAction(state.songs);
 
 const toggleCollect = () => {
     state.collected = !state.collected;

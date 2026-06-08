@@ -2,7 +2,6 @@
 import { gsap } from 'gsap';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 import { formatCount } from '@/utils/time';
-import { trackContentCardClick } from '@/utils/analytics';
 
 interface Props {
     id: number | string;
@@ -14,11 +13,6 @@ interface Props {
     to: string;
     aspectRatio?: 'square' | 'video';
     enableTilt?: boolean;
-    /** 埋点：卡片所在区块 */
-    section?: string;
-    /** 埋点：列表内位置（0-based） */
-    position?: number;
-    contentType?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -75,18 +69,7 @@ onUnmounted(() => {
 });
 
 // Hero 展开动画
-const reportCardClick = (): void => {
-    if (!props.section) return;
-    trackContentCardClick({
-        content_type: props.contentType ?? 'book',
-        content_id: props.id,
-        section: props.section,
-        position: props.position,
-    });
-};
-
 const handleClick = async (_event: MouseEvent) => {
-    reportCardClick();
     if (isAnimating.value || !cardRef.value) {
         router.push(props.to);
         return;

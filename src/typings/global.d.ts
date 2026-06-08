@@ -9,8 +9,6 @@ declare interface ViteEnv {
     VITE_PROXY: [string, string][];
     VITE_SAPI_TARGET?: string;
     VITE_API_BASE_URL: string;
-    VITE_POSTHOG_KEY?: string;
-    VITE_POSTHOG_HOST?: string;
 }
 
 interface ImportMeta {

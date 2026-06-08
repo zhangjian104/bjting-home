@@ -5,18 +5,9 @@
 import { defineStore } from 'pinia';
 // src/stores/modules/audio.ts(6,10): error TS2305: Module '"@/api"' has no exported member 'songUrlV1'.
 // import { songUrlV1 } from '@/api';
-import { Song, PlayMode, AudioStoreState, type PlayContext } from '../interface';
+import { Song, PlayMode, AudioStoreState } from '../interface';
+import { useSettingsStore } from './settings';
 import piniaPersistConfig from '../persist';
-import { PlaybackSource, type PlaybackSourceType } from '@/utils/analyticsEvents';
-import {
-    onAudioPlaying,
-    onAudioPause,
-    onChapterComplete,
-    onChapterSkip,
-    onPlayError,
-    onAudioSeek,
-    checkProgressMilestones,
-} from '@/utils/analytics';
 
 /** 全局 Audio 单例（整个应用只创建一个 HTMLAudioElement） */
 let globalAudio: HTMLAudioElement | null = null;
@@ -89,7 +80,6 @@ export const useAudioStore = defineStore('audio', {
             error: null,
             // 记录静音前的音量
             previousVolume: 1,
-            playContext: { source: PlaybackSource.UNKNOWN },
         },
     }),
 
@@ -129,33 +119,6 @@ export const useAudioStore = defineStore('audio', {
     },
 
     actions: {
-        /** 合并播放埋点上下文 */
-        setPlayContext(context?: PlayContext) {
-            if (!context) return;
-            this.audio.playContext = {
-                ...this.audio.playContext,
-                ...context,
-            };
-        },
-
-        /** 构建当前播放埋点参数 */
-        _analyticsCtx() {
-            const song = this.audio.currentSong;
-            const bookId =
-                this.audio.playContext.book_id ??
-                (song?.albumId != null ? String(song.albumId) : undefined);
-            return {
-                chapter_index: this.audio.currentIndex,
-                duration_seconds: this.audio.duration,
-                played_seconds: this.audio.currentTime,
-                source: (this.audio.playContext.source ??
-                    PlaybackSource.UNKNOWN) as PlaybackSourceType,
-                play_mode: this.audio.playMode,
-                book_id: bookId,
-                song,
-            };
-        },
-
         // 初始化音频播放器
         initAudio() {
             if (!this.audio.audio) {
@@ -199,10 +162,6 @@ export const useAudioStore = defineStore('audio', {
                 if (!this.audio._isWaiting) {
                     this.audio.isPlaying = false;
                     this.audio.isPaused = true;
-                    const ctx = this._analyticsCtx();
-                    if (ctx.song) {
-                        onAudioPause(ctx.song, ctx);
-                    }
                 }
             });
 
@@ -210,10 +169,6 @@ export const useAudioStore = defineStore('audio', {
             audio.addEventListener('ended', () => {
                 this.audio.isPlaying = false;
                 this.audio._isWaiting = false;
-                const ctx = this._analyticsCtx();
-                if (ctx.song) {
-                    onChapterComplete(ctx.song, ctx);
-                }
                 this.handleSongEnd();
             });
 
@@ -240,10 +195,6 @@ export const useAudioStore = defineStore('audio', {
                 this.audio.isLoading = false;
                 this.audio.isPlaying = true;
                 this.audio.isPaused = false;
-                const ctx = this._analyticsCtx();
-                if (ctx.song) {
-                    onAudioPlaying(ctx.song, ctx);
-                }
             });
 
             // 网络数据获取停滞
@@ -254,15 +205,6 @@ export const useAudioStore = defineStore('audio', {
             // 时间更新
             audio.addEventListener('timeupdate', () => {
                 this.audio.currentTime = audio.currentTime || 0;
-                const ctx = this._analyticsCtx();
-                if (ctx.song && this.audio.duration > 0) {
-                    checkProgressMilestones(
-                        ctx.song,
-                        this.audio.currentTime,
-                        this.audio.duration,
-                        ctx
-                    );
-                }
             });
 
             // 音量变化
@@ -277,27 +219,24 @@ export const useAudioStore = defineStore('audio', {
                 this.audio.isLoading = false;
                 this.audio.isPlaying = false;
                 console.error('Audio error:', e);
-                const ctx = this._analyticsCtx();
+                // 触发一次刷新播放地址并重试，10秒内同一歌曲仅重试一次
                 const now = Date.now();
                 const id = this.audio.currentSong?.id ?? null;
-                const willRetry =
+                if (
                     id &&
-                    (!lastRetrySongId || lastRetrySongId !== id || now - lastRetryTime > 10000);
-                if (willRetry) {
+                    (!lastRetrySongId || lastRetrySongId !== id || now - lastRetryTime > 10000)
+                ) {
                     lastRetrySongId = id as any;
                     lastRetryTime = now;
                     this.refreshAndReplay();
-                } else if (ctx.song) {
-                    onPlayError(ctx.song, 'audio_element_error', ctx);
                 }
             });
             eventsBound = true;
         },
 
         /** 播放歌曲（自动获取缺失的播放地址） */
-        async playSong(song?: Song, index?: number, context?: PlayContext) {
+        async playSong(song?: Song, index?: number) {
             this.initAudio();
-            this.setPlayContext(context);
 
             if (song && index !== undefined) {
                 this.audio.currentSong = song;
@@ -324,10 +263,6 @@ export const useAudioStore = defineStore('audio', {
             } catch (error) {
                 this.audio.error = '播放失败，请检查网络连接';
                 console.error('Play error:', error);
-                const ctx = this._analyticsCtx();
-                if (ctx.song) {
-                    onPlayError(ctx.song, 'play_promise_rejected', ctx);
-                }
                 // 播放失败时也尝试刷新 URL 后重试
                 const id = this.audio.currentSong?.id ?? null;
                 if (id) this.refreshAndReplay();
@@ -421,7 +356,7 @@ export const useAudioStore = defineStore('audio', {
         },
 
         // 下一首
-        nextSong(fromFooter = false) {
+        nextSong() {
             if (this.audio.playlist.length === 0) return;
 
             let nextIndex = this.audio.currentIndex;
@@ -429,9 +364,7 @@ export const useAudioStore = defineStore('audio', {
             switch (this.audio.playMode) {
                 case PlayMode.SINGLE:
                     // 单曲循环，重新播放当前歌曲
-                    this.playSong(this.audio.currentSong!, this.audio.currentIndex, {
-                        source: fromFooter ? PlaybackSource.FOOTER_PLAYER : this.audio.playContext.source,
-                    });
+                    this.playSong(this.audio.currentSong!, this.audio.currentIndex);
                     return;
 
                 case PlayMode.RANDOM:
@@ -454,19 +387,13 @@ export const useAudioStore = defineStore('audio', {
             }
 
             const nextSong = this.audio.playlist[nextIndex];
-            if (nextSong && nextIndex !== this.audio.currentIndex) {
-                const ctx = this._analyticsCtx();
-                if (ctx.song) {
-                    onChapterSkip(ctx.song, { ...ctx, direction: 'next' });
-                }
-                this.playSong(nextSong, nextIndex, {
-                    source: fromFooter ? PlaybackSource.FOOTER_PLAYER : this.audio.playContext.source,
-                });
+            if (nextSong) {
+                this.playSong(nextSong, nextIndex);
             }
         },
 
         // 上一首
-        previousSong(fromFooter = false) {
+        previousSong() {
             if (this.audio.playlist.length === 0) return;
 
             let prevIndex = this.audio.currentIndex;
@@ -474,9 +401,7 @@ export const useAudioStore = defineStore('audio', {
             switch (this.audio.playMode) {
                 case PlayMode.SINGLE:
                     // 单曲循环，重新播放当前歌曲
-                    this.playSong(this.audio.currentSong!, this.audio.currentIndex, {
-                        source: fromFooter ? PlaybackSource.FOOTER_PLAYER : this.audio.playContext.source,
-                    });
+                    this.playSong(this.audio.currentSong!, this.audio.currentIndex);
                     return;
 
                 case PlayMode.RANDOM:
@@ -503,14 +428,8 @@ export const useAudioStore = defineStore('audio', {
             }
 
             const prevSong = this.audio.playlist[prevIndex];
-            if (prevSong && prevIndex !== this.audio.currentIndex) {
-                const ctx = this._analyticsCtx();
-                if (ctx.song) {
-                    onChapterSkip(ctx.song, { ...ctx, direction: 'previous' });
-                }
-                this.playSong(prevSong, prevIndex, {
-                    source: fromFooter ? PlaybackSource.FOOTER_PLAYER : this.audio.playContext.source,
-                });
+            if (prevSong) {
+                this.playSong(prevSong, prevIndex);
             }
         },
 
@@ -607,13 +526,7 @@ export const useAudioStore = defineStore('audio', {
         // 设置播放进度
         setCurrentTime(time: number) {
             if (this.audio.audio && this.audio.duration > 0) {
-                const from = this.audio.currentTime;
-                const to = Math.max(0, Math.min(this.audio.duration, time));
-                this.audio.audio.currentTime = to;
-                const ctx = this._analyticsCtx();
-                if (ctx.song && Math.abs(to - from) > 1) {
-                    onAudioSeek(ctx.song, from, to, ctx);
-                }
+                this.audio.audio.currentTime = Math.max(0, Math.min(this.audio.duration, time));
             }
         },
 
@@ -723,8 +636,7 @@ export const useAudioStore = defineStore('audio', {
         },
 
         // 设置播放列表
-        setPlaylist(songs: Song[], startIndex: number = 0, context?: PlayContext) {
-            this.setPlayContext(context);
+        setPlaylist(songs: Song[], startIndex: number = 0) {
             this.audio.playlist = [...songs];
             this.audio.originalPlaylist = [...songs];
 
