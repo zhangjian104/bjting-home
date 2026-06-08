@@ -8,11 +8,11 @@ const sections = [
         titleKey: 'layout.aside.explore',
         items: [
             { to: '/', labelKey: 'layout.aside.menu.home', icon: 'mdi--home' },
-            { to: '/mv-list', labelKey: 'layout.aside.menu.mv', icon: 'mdi--video' },
-            { to: '/charts', labelKey: 'layout.aside.menu.charts', icon: 'mdi--chart-line' },
+            // { to: '/mv-list', labelKey: 'layout.aside.menu.mv', icon: 'mdi--video' },
+            // { to: '/charts', labelKey: 'layout.aside.menu.charts', icon: 'mdi--chart-line' },
             { to: '/artists', labelKey: 'layout.aside.menu.artists', icon: 'mdi--account-music' },
-            { to: '/new-albums', labelKey: 'layout.aside.menu.newAlbums', icon: 'mdi--album' },
-            { to: '/search', labelKey: 'layout.aside.menu.search', icon: 'ic--round-search' },
+            // { to: '/new-albums', labelKey: 'layout.aside.menu.newAlbums', icon: 'mdi--album' },
+            // { to: '/search', labelKey: 'layout.aside.menu.search', icon: 'ic--round-search' },
         ],
     },
     {
@@ -23,17 +23,17 @@ const sections = [
                 labelKey: 'layout.aside.menu.recent',
                 icon: 'mdi--music-box-multiple',
             },
-            {
-                to: '/local-music',
-                labelKey: 'layout.aside.menu.localMusic',
-                icon: 'mdi--folder-music-outline',
-            },
+            // {
+            //     to: '/local-music',
+            //     labelKey: 'layout.aside.menu.localMusic',
+            //     icon: 'mdi--folder-music-outline',
+            // },
         ],
     },
-    {
-        titleKey: 'layout.aside.system',
-        items: [{ to: '/settings', labelKey: 'layout.aside.menu.settings', icon: 'mdi--cog' }],
-    },
+    // {
+    //     titleKey: 'layout.aside.system',
+    //     items: [{ to: '/settings', labelKey: 'layout.aside.menu.settings', icon: 'mdi--cog' }],
+    // },
 ];
 
 

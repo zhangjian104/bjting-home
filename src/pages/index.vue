@@ -214,14 +214,15 @@ onMounted(() => {
                             </span>
                             {{ t('home.hotSongs') }}
                         </h2>
-                        <router-link
+                        <!-- 排行榜入口（暂隐藏） -->
+                        <!-- <router-link
                             v-magnetic="{ strength: 0.3, distance: 60 }"
                             to="/charts"
                             class="text-primary/40 hover:text-primary/70 flex items-center gap-1 text-[13px] font-medium transition-all duration-200 hover:gap-1.5"
                         >
                             {{ t('common.viewAll') }}
                             <span class="icon-[mdi--chevron-right] h-4 w-4" />
-                        </router-link>
+                        </router-link> -->
                     </div>
                     <div class="songs-container overflow-hidden rounded-2xl">
                         <div

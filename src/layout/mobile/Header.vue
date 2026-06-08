@@ -16,7 +16,8 @@ const goSearch = () => router.push('/search');
                 <h1 class="text-primary text-base font-semibold">{{ t('common.appName') }}</h1>
             </router-link>
         </div>
-        <div class="flex items-center gap-2">
+        <!-- 搜索 / 登录入口（暂隐藏，保留实现；登录后续替换为 Clerk 组件） -->
+        <!-- <div class="flex items-center gap-2">
             <button
                 class="hover:bg-hover-glass rounded-md p-2"
                 :title="t('common.search.label')"
@@ -24,13 +25,12 @@ const goSearch = () => router.push('/search');
             >
                 <span class="icon-[mdi--magnify] h-5 w-5"></span>
             </button>
-            <!-- 登录入口：后续替换为 Clerk 组件 -->
             <button
                 class="hover:bg-hover-glass rounded-md p-2"
                 :title="t('auth.login')"
             >
                 <span class="icon-[mdi--account] h-5 w-5"></span>
             </button>
-        </div>
+        </div> -->
     </header>
 </template>

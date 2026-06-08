@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const items = [
     { to: '/', icon: 'icon-[mdi--home]', labelKey: 'layout.nav.home' },
-    { to: '/search', icon: 'icon-[mdi--magnify]', labelKey: 'common.search.label' },
+    // { to: '/search', icon: 'icon-[mdi--magnify]', labelKey: 'common.search.label' },
     { to: '/recent', icon: 'icon-[mdi--music-circle-outline]', labelKey: 'layout.nav.myMusic' },
     { to: '/settings', icon: 'icon-[mdi--cog-outline]', labelKey: 'layout.aside.menu.settings' },
 ];

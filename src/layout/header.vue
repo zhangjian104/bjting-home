@@ -110,8 +110,8 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                 </Button>
             </div>
 
-            <!-- 外链菜单 -->
-            <nav class="hidden items-center gap-3 xl:flex">
+            <!-- 外链菜单（暂隐藏：项目仓库 / 影视网站 / 项目文档 / 备用文档） -->
+            <!-- <nav class="hidden items-center gap-3 xl:flex">
                 <Button
                     v-for="link in [
                         {
@@ -147,13 +147,13 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                     <span :class="[link.icon, 'h-4 w-4']"></span>
                     <span class="link-label">{{ link.label }}</span>
                 </Button>
-            </nav>
+            </nav> -->
         </div>
 
         <!-- 右侧功能区 -->
         <div class="flex items-center gap-2.5">
-            <!-- 搜索框 -->
-            <div
+            <!-- 搜索入口（暂隐藏，保留实现） -->
+            <!-- <div
                 ref="rootRef"
                 class="bg-button-glass hidden items-center gap-2 rounded-[10px] px-3 py-1.5 transition-all duration-300 lg:flex"
                 :class="[
@@ -190,7 +190,6 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                 </Transition>
             </div>
 
-            <!-- 搜索历史下拉 -->
             <Teleport to="body">
                 <Transition name="dropdown">
                     <div
@@ -224,7 +223,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                         </ul>
                     </div>
                 </Transition>
-            </Teleport>
+            </Teleport> -->
 
             <!-- 主题切换 -->
             <Button
@@ -246,8 +245,8 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                 ></span>
             </Button>
 
-            <!-- 用户区域：后续替换为 Clerk <SignInButton> / <UserButton> -->
-            <Button
+            <!-- 登录入口（暂隐藏，保留实现；后续替换为 Clerk <SignInButton> / <UserButton>） -->
+            <!-- <Button
                 variant="glass"
                 size="sm"
                 rounded="lg"
@@ -255,7 +254,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
             >
                 <span class="icon-[ic--baseline-person-pin] h-4 w-4"></span>
                 {{ t('auth.login') }}
-            </Button>
+            </Button> -->
 
             <!-- 移动端菜单按钮 -->
             <Button variant="ghost" size="icon-md" rounded="lg" class="md:hidden">
