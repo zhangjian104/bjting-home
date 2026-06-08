@@ -1,0 +1,39 @@
+---
+description: 音频播放器 Pinia Store 与播放埋点上下文
+globs: src/stores/modules/audio.ts,src/composables/useAudio.ts,src/composables/usePlayActions.ts
+alwaysApply: false
+---
+
+# Audio 模块
+
+## 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/stores/modules/audio.ts` | 播放状态、队列、历史、`playContext`、analytics 钩子 |
+| `src/composables/useAudio.ts` | 组件层播放 API，透传 `PlayContext` |
+| `src/composables/usePlayActions.ts` | `playAll` / `shufflePlay`，上报 `audiobook_play_all` |
+| `src/stores/interface.ts` | `PlayContext`、`audio.playContext` 类型 |
+
+## playContext 数据流
+
+1. 入口（`book.vue`、`SongList`、`usePlayActions`）调用 `playSong` / `setPlaylist` 时传入 `{ source, book_id? }`
+2. `audioStore.setPlayContext` 写入 `audio.playContext`
+3. `_analyticsCtx()` 合并 `playContext` 与当前 `Song.albumId` 供埋点使用
+
+## 埋点触发点（audioStore）
+
+| 事件 | 触发 |
+|------|------|
+| `audiobook_play_start` | `playing` 且 chapter 变更 → `onAudioPlaying` |
+| `audiobook_play_pause` | 用户 `pause`（排除 `waiting`）→ `onAudioPause` |
+| `audiobook_chapter_complete` | `ended` 最前 → `onChapterComplete`，再 `handleSongEnd` |
+| `audiobook_progress_milestone` | `timeupdate` → `checkProgressMilestones` |
+| `audiobook_chapter_skip` | `nextSong` / `previousSong` 切章前 |
+| `audiobook_seek` | `setCurrentTime` 防抖 |
+| `audiobook_play_error` | `error` 或 `play()` catch |
+
+## 注意
+
+- 单曲循环（`PlayMode.SINGLE`）同一章 `chapter_complete` 只计一次
+- Footer 切章可传 `fromFooter` 以归因 `footer_player`（若调用处支持）

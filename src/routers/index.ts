@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router';
 import { defineComponent, h, defineAsyncComponent } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
+import { trackPageView } from '@/utils/analytics';
 
 // 从环境变量中获取路由模式配置，默认为 'hash' 模式
 const mode = import.meta.env.VITE_ROUTER_MODE || 'hash';
@@ -215,6 +216,11 @@ const router = createRouter({
             ],
         },
     ],
+});
+
+// Phase 1：SPA 路由级 pageview（dev 环境 analytics 未初始化，调用为空操作）
+router.afterEach((to, from) => {
+    trackPageView(to, from);
 });
 
 export default router;

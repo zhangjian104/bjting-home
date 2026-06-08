@@ -7,6 +7,9 @@ import type { Song } from '@/stores/interface';
 import type { AudiobookDetailResponse } from '@/typings/response';
 import { getAudiobookDetail } from '@/api';
 import { getValidCover } from '@/utils';
+import { trackBookDetailView, trackPlayAll } from '@/utils/analytics';
+import { PlaybackSource } from '@/utils/analyticsEvents';
+import type { PlayContext } from '@/stores/interface';
 import Button from '@/components/Ui/Button.vue';
 import LazyImage from '@/components/Ui/LazyImage.vue';
 import SongList from '@/components/SongList.vue';
@@ -86,11 +89,23 @@ const loadBookDetail = async (id: string) => {
                 name: ep.name,
                 artist: bookInfo.value.creator,
                 album: bookInfo.value.name,
+                albumId: bookInfo.value.id,
                 // 后端返回秒数，前端播放器所需时长为毫秒
                 duration: (ep.duration_seconds || 0) * 1000,
                 cover: bookInfo.value.coverImgUrl,
                 url: ep.audio_url,
             }));
+
+            const history = audioStore.audio.playHistory || [];
+            const playedBefore = history.some(h =>
+                res.episodes.some(ep => ep.key === h.id)
+            );
+            trackBookDetailView({
+                book_id: bookInfo.value.id,
+                book_title: bookInfo.value.name,
+                chapter_count: chapters.value.length,
+                has_played_before: playedBefore,
+            });
         }
     } catch (e) {
         console.error('Failed to load audiobook detail:', e);
@@ -124,25 +139,38 @@ const hasPlayedBefore = computed(() => {
 const handlePlay = () => {
     if (chapters.value.length === 0) return;
 
-    setPlaylist(chapters.value, 0);
+    const bookId = bookInfo.value.id;
 
     if (hasPlayedBefore.value) {
         const history = audioStore.audio.playHistory || [];
-        // 找到最后播放的这一本书的章节
         const lastPlayed = [...history]
             .reverse()
             .find(h => chapters.value.some(c => c.id === h.id));
         if (lastPlayed) {
             const index = chapters.value.findIndex(c => c.id === lastPlayed.id);
             if (index !== -1) {
-                play(chapters.value[index], index);
+                const ctx: PlayContext = {
+                    source: PlaybackSource.RECENT_HISTORY,
+                    book_id: bookId,
+                };
+                setPlaylist(chapters.value, index, ctx);
+                play(chapters.value[index], index, ctx);
                 return;
             }
         }
     }
 
-    // 开始播放第一集
-    play(chapters.value[0], 0);
+    const ctx: PlayContext = {
+        source: PlaybackSource.BOOK_DETAIL_PLAY_ALL,
+        book_id: bookId,
+    };
+    trackPlayAll({
+        book_id: bookId,
+        chapter_count: chapters.value.length,
+        source: PlaybackSource.BOOK_DETAIL_PLAY_ALL,
+    });
+    setPlaylist(chapters.value, 0, ctx);
+    play(chapters.value[0], 0, ctx);
 };
 
 const goBack = () => {
@@ -240,7 +268,12 @@ const goBack = () => {
             <!-- 章节列表 -->
             <section class="relative mt-2 min-h-[300px] flex-1 overflow-hidden">
                 <div class="absolute inset-0">
-                    <SongList :songs="chapters" :show-header="true" />
+                    <SongList
+                        :songs="chapters"
+                        :show-header="true"
+                        :playback-source="PlaybackSource.BOOK_DETAIL_CHAPTER_LIST"
+                        :book-id="bookInfo.id"
+                    />
                 </div>
             </section>
         </div>

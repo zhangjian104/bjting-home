@@ -1,0 +1,65 @@
+---
+description: PostHog 数据采集（Phase 1–2c）
+globs: src/utils/analytics.ts,src/utils/analyticsEvents.ts,src/routers/index.ts,src/main.ts
+alwaysApply: false
+---
+
+# Analytics 模块
+
+## 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/utils/analyticsEvents.ts` | 事件名、`PlaybackSource` 枚举、`PROGRESS_MILESTONES` |
+| `src/utils/analytics.ts` | 初始化、pageview、发现/播放/留存埋点 API |
+| `src/main.ts` | production 启动时 `initAnalytics()` |
+| `src/routers/index.ts` | `afterEach` → `trackPageView` |
+| `src/stores/modules/audio.ts` | 播放生命周期埋点（禁止组件内 `posthog.capture`） |
+
+## 环境变量
+
+- `VITE_POSTHOG_KEY`：前端 Project API Key（`phc_`）
+- `VITE_POSTHOG_HOST`：默认 `https://us.i.posthog.com`
+- `VITE_ANALYTICS_DEBUG=true`：preview 构建时在控制台打印 `[analytics]`（不改变 dev 不上报策略）
+- `posthog_personal_api_key`：仅 MCP/API，**不加** `VITE_` 前缀
+
+## 行为约定
+
+- **dev**：不初始化、不上报
+- **production 构建**：初始化 PostHog；`capture_pageview: false`，路由手动 `$pageview`
+- **Session Replay**：全量开启
+- **play_start**：仅在 `audio` `playing` 事件且 `chapter_id` 变更时上报（非 `playSong` 直报）
+- **chapter_complete**：在 `ended` 回调最前、调用 `handleSongEnd` 前快照 `currentSong` 上报
+- **milestone**：每章 25/50/75/90 各报一次；`duration > 0` 后才计算
+- **seek**：防抖 2s
+
+## 对外 API
+
+```text
+trackPageView / trackBookDetailView / trackContentCardClick / trackPlayAll
+onAudioPlaying / onAudioPause / onChapterComplete / onChapterSkip
+checkProgressMilestones / onAudioSeek / onPlayError
+checkReturnToBook / flushSessionSummary / updateListeningPersonProps
+identifyUser / resetAnalyticsUser  # Phase 4 Clerk 就绪后调用
+```
+
+## 播放归因 `source`
+
+由 `audioStore.playContext` 写入，入口包括：`book.vue` 播放全部/续听、`SongList` 章节列表、`usePlayActions.playAll`、`playlist_page` / `artist_page` 等。
+
+`book_id` 优先 `Song.albumId`，兜底 `playContext.book_id`（`book.vue` 章节映射必须带 `albumId`）。
+
+## PostHog 看板
+
+已创建 Dashboard **「有声小说业务看板」**（project 360898，id `1681955`），含：
+
+- 书籍详情 PV（`book_detail_view` 按 `book_id`）
+- 发现漏斗（`content_card_click` → `book_detail_view` → `audiobook_play_start`）
+- 完播趋势（`play_start` vs `chapter_complete`）
+- 90% 里程碑、`return_to_book`、D7 播放留存
+
+## 验证
+
+- **L1**：`pnpm test`（`src/utils/analytics.playback.test.ts`，mock `posthog-js`）
+- **L2**：`pnpm build && pnpm preview`，PostHog Live Events 手工剧本（规划 §9.2）
+- **L3**：部署后 HogQL 属性完备率巡检（规划 §9.3）

@@ -9,6 +9,7 @@ import 'swiper/css/effect-cards';
 
 import { formatCount } from '@/utils/time';
 import { getValidCover } from '@/utils';
+import { trackContentCardClick } from '@/utils/analytics';
 import type { PlaylistData, SongData, ArtistData } from '@/utils/transformers';
 
 const { t } = useI18n();
@@ -79,6 +80,20 @@ const loadHomeData = async () => {
 
 onMounted(loadHomeData);
 
+const onContentCardClick = (
+    contentType: string,
+    contentId: string | number,
+    section: string,
+    position?: number
+) => {
+    trackContentCardClick({
+        content_type: contentType,
+        content_id: contentId,
+        section,
+        position,
+    });
+};
+
 const swiperModules = [Autoplay, Pagination, EffectCards];
 </script>
 
@@ -140,10 +155,11 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                     </div>
                     <div class="grid grid-cols-3 gap-3">
                         <router-link
-                            v-for="pl in playlists"
+                            v-for="(pl, index) in playlists"
                             :key="pl.id"
                             :to="`/book/${encodeURIComponent(String(pl.id))}`"
                             class="group"
+                            @click="onContentCardClick('book', pl.id, 'recommend_playlists', index)"
                         >
                             <div
                                 class="playlist-cover relative mb-2 aspect-square overflow-hidden rounded-xl"
@@ -192,10 +208,11 @@ const swiperModules = [Autoplay, Pagination, EffectCards];
                     </div>
                     <div class="scrollbar-hide flex gap-3 overflow-x-auto px-4 pb-2">
                         <router-link
-                            v-for="artist in artists"
+                            v-for="(artist, index) in artists"
                             :key="artist.id"
                             :to="`/artist/${artist.id}`"
                             class="flex shrink-0 flex-col items-center"
+                            @click="onContentCardClick('artist', artist.id, 'hot_artists', index)"
                         >
                             <div
                                 class="artist-avatar relative mb-1.5 h-16 w-16 overflow-hidden rounded-full"

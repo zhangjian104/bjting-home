@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { gsap } from 'gsap';
 import LazyImage from '@/components/Ui/LazyImage.vue';
+import { trackContentCardClick } from '@/utils/analytics';
 
 interface Props {
     id: number | string;
     name: string;
     picUrl: string;
     to: string;
+    section?: string;
+    position?: number;
+    contentType?: string;
 }
 
 const props = defineProps<Props>();
@@ -15,8 +19,19 @@ const cardRef = ref<HTMLElement | null>(null);
 const imageRef = ref<HTMLElement | null>(null);
 const isAnimating = ref(false);
 
+const reportCardClick = (): void => {
+    if (!props.section) return;
+    trackContentCardClick({
+        content_type: props.contentType ?? 'artist',
+        content_id: props.id,
+        section: props.section,
+        position: props.position,
+    });
+};
+
 // 共享元素飞行动画
 const handleClick = async () => {
+    reportCardClick();
     if (isAnimating.value || !cardRef.value || !imageRef.value) {
         router.push(props.to);
         return;

@@ -18,7 +18,9 @@
         "screenshots": "node scripts/capture-screenshots.mjs",
         "screenshots:mobile": "node scripts/capture-screenshots-mobile.mjs",
         "lint": "eslint --ext .js,.vue --fix .",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "dependencies": {
         "@tailwindcss/postcss": "^4.1.15",
@@ -38,6 +40,7 @@
         "pinia": "^3.0.3",
         "pinia-plugin-persistedstate": "^4.5.0",
         "postcss": "^8.5.6",
+        "posthog-js": "^1.382.0",
         "prettier-plugin-tailwindcss": "^0.7.1",
         "swiper": "^12.0.3",
         "tailwindcss": "^4.1.15",
@@ -56,6 +59,7 @@
         "@iconify/json": "^2.2.398",
         "@iconify/tailwind4": "^1.0.6",
         "@vitejs/plugin-vue": "^6.0.1",
+        "@vitest/coverage-v8": "^4.1.8",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.6.0",
         "@vue/tsconfig": "^0.8.1",
@@ -64,6 +68,7 @@
         "eslint-plugin-prettier": "^5.5.4",
         "eslint-plugin-vue": "^10.5.1",
         "gray-matter": "^4.0.3",
+        "jsdom": "^29.1.1",
         "marked": "^18.0.2",
         "prettier": "^3.6.2",
         "sass-embedded": "^1.93.2",
@@ -72,6 +77,7 @@
         "vite": "^7.1.11",
         "vite-plugin-qrcode": "^0.3.0",
         "vite-plugin-remove-console": "^2.2.0",
+        "vitest": "^4.1.8",
         "vue-tsc": "^3.1.1"
     },
     "engines": {

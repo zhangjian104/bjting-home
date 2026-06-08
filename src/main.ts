@@ -24,6 +24,10 @@ import { useWindowSize, useDebounceFn, usePreferredDark } from '@vueuse/core';
 
 // 动画指令
 import { animationDirectives } from '@/directives/animations';
+// 数据采集（Phase 1：仅 production 初始化）
+import { initAnalytics } from '@/utils/analytics';
+
+initAnalytics();
 
 const app = createApp(App);
 const head = createHead();
