@@ -5,11 +5,10 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import NProgress from '@/config/nprogress';
 
-/** 创建 axios 实例 */
+/** 创建 axios 实例（与 fetch API 共用同一后端基址） */
 const instance: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_APP_BASE_API,
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'https://api.bjting.com/api',
     timeout: 1000000,
-    withCredentials: true,
 });
 
 /** 请求拦截器：启动进度条、添加时间戳防缓存 */
@@ -17,14 +16,6 @@ instance.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
         // 开启进度条
         NProgress.start();
-        if (config.params === undefined) {
-            config.params = {};
-        }
-        // 添加或修改params
-        Object.assign(config.params, {
-            timestamp: Date.now(),
-            realIP: '116.25.146.177',
-        });
         return config;
     },
     error => Promise.reject(error)

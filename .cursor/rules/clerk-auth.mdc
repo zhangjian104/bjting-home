@@ -147,7 +147,7 @@ router.beforeEach((to, from, next) => {
 const { getToken } = useAuth();
 const token = await getToken();
 
-fetch('/sapi/xxx', {
+fetch('https://api.bjting.com/api/xxx', {
     headers: {
         Authorization: `Bearer ${token}`,
     },

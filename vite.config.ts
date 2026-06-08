@@ -14,22 +14,8 @@ export default defineConfig(({ mode }) => {
         server: {
             port: 5089,
             host: true,
-            // 代理配置
+            // 可选：通过 VITE_PROXY 配置额外本地代理（默认全环境直连 api.bjting.com）
             proxy: {
-                '/sapi': {
-                    // 若需要连接正式接口，请在根目录创建 .env.local 文件并设置 VITE_SAPI_TARGET (例如：VITE_SAPI_TARGET=https://api.domain.com)
-                    // 代码库中不包含任何本地或正式环境的地址差异，保持仓库干净。
-                    target: viteEnv.VITE_SAPI_TARGET || 'http://127.0.0.1:8788',
-                    changeOrigin: true,
-                    rewrite: path => path.replace(/^\/sapi/, '/api'),
-                },
-                '/api': {
-                    target: 'https://neteasecloudmusicapi-2.onrender.com', // 因为 lulufm.app 本地 443 不通，退回到原始接口
-                    changeOrigin: true,
-                    // 将开头的 /api 删掉
-                    rewrite: path => path.replace(/^\/api/, ''),
-                    secure: false, // 不验证 SSL 证书
-                },
                 ...createProxy(viteEnv.VITE_PROXY),
             },
         },

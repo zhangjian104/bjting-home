@@ -1,0 +1,30 @@
+---
+description: 有声小说 API 封装与直连约定
+globs: src/api/**,src/utils/http.ts,.env*
+alwaysApply: false
+---
+
+# API 模块
+
+## 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/api/index.ts` | 有声小说接口（`getAudiobooks`、`getAudiobookDetail` 等） |
+| `src/utils/http.ts` | axios 封装，与 `VITE_API_BASE_URL` 共用基址 |
+
+## 基址约定
+
+- 默认：`https://api.bjting.com/api`（dev / preview / production 一致）
+- 环境变量：`VITE_API_BASE_URL`
+- 本地联调 `bjting-server`：`.env.local` 设为 `http://127.0.0.1:8788/api`（已被 gitignore）
+
+## 已废弃
+
+- `/sapi` 前缀与 Vite 代理（已移除）
+- 网易云 `/api` 代理（已移除）
+- `VITE_APP_BASE_API`、`VITE_SAPI_TARGET`
+
+## 新增接口
+
+在 `src/api/index.ts` 增加方法，使用内部 `apiFetch()`，禁止组件内直接请求。

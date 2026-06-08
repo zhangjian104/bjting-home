@@ -4,8 +4,5 @@
 User-agent: *
 Allow: /
 
-# 本地/同域 API 代理路径，避免被当作网页收录
-Disallow: /sapi/
-
 Sitemap: https://api.bjting.com/sitemap.xml
 Sitemap: https://bjting.com/sitemap-articles.xml
