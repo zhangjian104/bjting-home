@@ -1,0 +1,23 @@
+---
+description: 书籍详情页数据映射与播放器入参
+globs: src/pages/book.vue,src/pages/mobile/book.vue
+alwaysApply: false
+---
+
+# Book 模块
+
+## 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/pages/book.vue` | PC 书籍详情页 |
+| `src/pages/mobile/book.vue` | 移动端书籍详情页 |
+
+## 章节映射约定
+
+`res.episodes -> Song` 时必须写入：
+
+- `album: bookInfo.name`
+- `albumId: bookInfo.id`
+
+`albumId` 作为 `book_id` 的核心来源，播放器埋点依赖该字段稳定识别“当前听的是哪本书”。

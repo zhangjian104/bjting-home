@@ -1,0 +1,34 @@
+---
+description: PostHog 埋点与指标口径（DAU/PV/收听书单）
+globs: src/utils/analytics.ts,src/main.ts
+alwaysApply: false
+---
+
+# Analytics 模块
+
+## 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/utils/analytics.ts` | `initAnalytics`、`trackPageView`、`trackAudiobookPlayStart` |
+| `src/main.ts` | 应用启动时调用 `initAnalytics()` |
+
+## 事件
+
+- `$pageview`：路由切换后上报，承载 DAU / PV 统计
+- `audiobook_play_start`：章节实际开始播放（`playing`）时上报
+
+## 用户属性（匿名用户也可统计）
+
+- `last_book_id`
+- `listened_book_ids`
+- `listened_book_titles`
+- `listened_book_count`
+
+以上属性通过 `posthog.register` 写入，并在本地 `localStorage(ph_listened_books)` 做去重维护。
+
+## 指标口径
+
+- **日活（DAU）**：`$pageview` 的去重用户（按天）
+- **访问量（PV）**：`$pageview` 总次数
+- **每用户听过哪些书**：按 `distinct_id` 查看 `listened_book_ids` / `listened_book_titles` 或 `audiobook_play_start` 事件明细

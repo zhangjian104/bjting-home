@@ -7,6 +7,8 @@ declare interface ViteEnv {
     VITE_ROUTER_MODE: 'hash' | 'history';
     VITE_PROXY: [string, string][];
     VITE_API_BASE_URL: string;
+    VITE_POSTHOG_KEY?: string;
+    VITE_POSTHOG_HOST?: string;
 }
 
 interface ImportMeta {

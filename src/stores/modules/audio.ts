@@ -8,6 +8,7 @@ import { defineStore } from 'pinia';
 import { Song, PlayMode, AudioStoreState } from '../interface';
 import { useSettingsStore } from './settings';
 import piniaPersistConfig from '../persist';
+import { trackAudiobookPlayStart } from '@/utils/analytics';
 
 /** 全局 Audio 单例（整个应用只创建一个 HTMLAudioElement） */
 let globalAudio: HTMLAudioElement | null = null;
@@ -17,6 +18,9 @@ let eventsBound = false;
 let lastRetrySongId: string | number | null = null;
 /** 上次重试时间戳 */
 let lastRetryTime = 0;
+/** play_start 去重：避免同一章节短时间重复 playing 触发 */
+let lastPlayStartSongId: string | null = null;
+let lastPlayStartAt = 0;
 
 /** 获取 Audio 单例（懒初始化） */
 const getAudioSingleton = (): HTMLAudioElement => {
@@ -195,6 +199,15 @@ export const useAudioStore = defineStore('audio', {
                 this.audio.isLoading = false;
                 this.audio.isPlaying = true;
                 this.audio.isPaused = false;
+
+                const current = this.audio.currentSong;
+                if (!current) return;
+                const now = Date.now();
+                const songId = String(current.id);
+                if (lastPlayStartSongId === songId && now - lastPlayStartAt < 10000) return;
+                lastPlayStartSongId = songId;
+                lastPlayStartAt = now;
+                trackAudiobookPlayStart(current, this.audio.currentIndex);
             });
 
             // 网络数据获取停滞

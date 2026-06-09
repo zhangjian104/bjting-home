@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router';
 import { defineComponent, h, defineAsyncComponent } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
+import { trackPageView } from '@/utils/analytics';
 
 // 从环境变量中获取路由模式配置，默认为 'hash' 模式
 const mode = import.meta.env.VITE_ROUTER_MODE || 'hash';
@@ -215,6 +216,10 @@ const router = createRouter({
             ],
         },
     ],
+});
+
+router.afterEach((to, from) => {
+    trackPageView(to, from);
 });
 
 export default router;

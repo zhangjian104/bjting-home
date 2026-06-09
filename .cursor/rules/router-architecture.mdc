@@ -1,0 +1,26 @@
+---
+description: 路由结构与 pageview 埋点
+globs: src/routers/index.ts
+alwaysApply: false
+---
+
+# Router 模块
+
+## 关键设计
+
+- 通过 `responsive()` 在桌面/移动组件间动态切换
+- `VITE_ROUTER_MODE` 控制 `history/hash` 模式
+
+## 埋点接入
+
+`router.afterEach((to, from) => trackPageView(to, from))`
+
+路由切换后统一上报 `$pageview`，并附带：
+
+- `route_name`
+- `path/full_path`
+- `content_id`
+- `referrer_route`
+- `is_mobile`
+
+该埋点作为 DAU/PV 的统一统计源。

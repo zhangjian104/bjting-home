@@ -21,6 +21,7 @@ import { useGlobalStore } from '@/stores/modules/global';
 import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 import { useWindowSize, useDebounceFn, usePreferredDark } from '@vueuse/core';
+import { initAnalytics } from '@/utils/analytics';
 
 // 动画指令
 import { animationDirectives } from '@/directives/animations';
@@ -32,6 +33,7 @@ app.use(head);
 app.use(Pinia);
 app.use(router);
 app.use(I18n);
+initAnalytics();
 
 // 注册全局动画指令
 Object.entries(animationDirectives).forEach(([name, directive]) => {

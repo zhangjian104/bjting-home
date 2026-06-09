@@ -1,0 +1,22 @@
+---
+description: 播放器状态机与播放开始埋点
+globs: src/stores/modules/audio.ts,src/stores/interface.ts
+alwaysApply: false
+---
+
+# Audio 模块
+
+## 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/stores/modules/audio.ts` | 音频状态管理、播放流程、事件监听 |
+| `src/stores/interface.ts` | `Song` / `AudioStoreState` 类型定义 |
+
+## 播放开始埋点策略
+
+在 `audio` 的 `playing` 事件中触发 `trackAudiobookPlayStart(currentSong, currentIndex)`：
+
+1. 仅在真正进入播放态时触发（避免 `playSong` 调用即计数）。
+2. 通过 `lastPlayStartSongId + lastPlayStartAt` 做 10 秒去重，避免缓冲恢复导致重复上报。
+3. 事件携带 `book_id/chapter_id/chapter_index`，用于“每用户听书清单”与内容消费分析。

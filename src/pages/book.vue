@@ -86,6 +86,7 @@ const loadBookDetail = async (id: string) => {
                 name: ep.name,
                 artist: bookInfo.value.creator,
                 album: bookInfo.value.name,
+                albumId: bookInfo.value.id,
                 // 后端返回秒数，前端播放器所需时长为毫秒
                 duration: (ep.duration_seconds || 0) * 1000,
                 cover: bookInfo.value.coverImgUrl,
