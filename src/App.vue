@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { useHead } from '@vueuse/head';
+import { useClerkSync } from '@/composables/useClerkSync';
+
+useClerkSync();
 
 useHead({
     titleTemplate: '%s - 专注深夜陪伴的中文有声情感电台',

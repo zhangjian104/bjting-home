@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+import ClerkAuthEntry from '@/components/Auth/ClerkAuthEntry.vue';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -245,16 +246,7 @@ onUnmounted(() => document.removeEventListener('pointerdown', onDocClick));
                 ></span>
             </Button>
 
-            <!-- 登录入口（暂隐藏，保留实现；后续替换为 Clerk <SignInButton> / <UserButton>） -->
-            <!-- <Button
-                variant="glass"
-                size="sm"
-                rounded="lg"
-                class="gap-1.5 px-3.5 py-1.5"
-            >
-                <span class="icon-[ic--baseline-person-pin] h-4 w-4"></span>
-                {{ t('auth.login') }}
-            </Button> -->
+            <ClerkAuthEntry />
 
             <!-- 移动端菜单按钮 -->
             <Button variant="ghost" size="icon-md" rounded="lg" class="md:hidden">

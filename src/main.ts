@@ -22,15 +22,29 @@ import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 import { useWindowSize, useDebounceFn, usePreferredDark } from '@vueuse/core';
 import { initAnalytics } from '@/utils/analytics';
+import { clerkPlugin } from '@clerk/vue';
 
 // 动画指令
 import { animationDirectives } from '@/directives/animations';
+
+const CLERK_PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!CLERK_PUBLISHABLE_KEY) {
+    throw new Error('缺少 VITE_CLERK_PUBLISHABLE_KEY 环境变量');
+}
 
 const app = createApp(App);
 const head = createHead();
 
 app.use(head);
 app.use(Pinia);
+app.use(clerkPlugin, {
+    publishableKey: CLERK_PUBLISHABLE_KEY,
+    signInUrl: import.meta.env.VITE_CLERK_SIGN_IN_URL || 'https://accounts.bjting.com/sign-in',
+    signUpUrl: import.meta.env.VITE_CLERK_SIGN_UP_URL || 'https://accounts.bjting.com/sign-up',
+    afterSignInUrl: '/',
+    afterSignUpUrl: '/',
+});
 app.use(router);
 app.use(I18n);
 initAnalytics();

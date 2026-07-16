@@ -4,6 +4,7 @@
  */
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import NProgress from '@/config/nprogress';
+import { getClerkAuthToken } from '@/utils/clerkToken';
 
 /** 创建 axios 实例（与 fetch API 共用同一后端基址） */
 const instance: AxiosInstance = axios.create({
@@ -11,11 +12,16 @@ const instance: AxiosInstance = axios.create({
     timeout: 1000000,
 });
 
-/** 请求拦截器：启动进度条、添加时间戳防缓存 */
+/** 请求拦截器：启动进度条、附带 Clerk Token */
 instance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-        // 开启进度条
+    async (config: InternalAxiosRequestConfig) => {
         NProgress.start();
+
+        const token = await getClerkAuthToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+
         return config;
     },
     error => Promise.reject(error)

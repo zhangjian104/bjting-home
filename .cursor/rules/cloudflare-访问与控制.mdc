@@ -1,0 +1,197 @@
+---
+description: Cloudflare 控制台、API 与 Wrangler 的正确访问与控制方式（AI 自动化优先）
+globs:
+alwaysApply: false
+---
+
+# Cloudflare 访问与控制
+
+本文档记录在本项目中**已验证可用**的 Cloudflare 访问方式，供 AI 自动化任务（DNS、Pages、Workers、R2 等）优先使用。
+
+## 1. 访问方式优先级
+
+| 方式 | 是否推荐 | 适用场景 |
+|------|----------|----------|
+| **Cloudflare API v4 + Global API Key** | ✅ DNS 首选 | 增删改 DNS 记录 |
+| **Wrangler CLI**（`npx wrangler`） | ✅ Workers/Pages/R2 | 部署、whoami、本地开发 |
+| **Cloudflare MCP**（`plugin-cloudflare-cloudflare-bindings`） | ✅ 绑定资源 | D1、KV、R2 等（需 `mcp_auth`） |
+| **Dashboard 浏览器** | ⚠️ 受限 | MCP 浏览器**不共享**用户已登录会话 |
+
+**原则**：DNS 变更用 **Global API Key**；Workers/Pages 部署用 **Wrangler**；不要假设 MCP 浏览器已登录 Cloudflare。
+
+## 2. 凭证存放约定
+
+### 2.1 推荐来源（已验证可写 DNS）
+
+路径：`../bjting-server/.env.deploy`（**勿提交 Git**）
+
+| 变量 | 用途 | 状态 |
+|------|------|------|
+| `CLOUDFLARE_EMAIL` | Global API Key 认证邮箱 | ✅ 可用 |
+| `CLOUDFLARE_API_KEY` | Global API Key | ✅ 可用（DNS 读写已验证） |
+| `CLOUDFLARE_API_TOKEN` | API Token | ❌ 已失效，勿用 |
+
+### 2.2 Wrangler OAuth（`~/.wrangler/config/default.toml`）
+
+```bash
+npx wrangler whoami
+```
+
+| 项 | 值 |
+|----|-----|
+| 账号邮箱 | `824483683@qq.com` |
+| Account ID | `e37045ac9cf47a153a58905bef20317c` |
+
+**限制**：当前 Wrangler OAuth Token 作用域含 `zone:read`、`pages:write`、`workers:write` 等，**不含** `dns_records:edit`。用 Wrangler Token 调 DNS API 会返回 `Authentication error (10000)`。
+
+### 2.3 安全要求
+
+- **禁止**将 API Key、密码写入 `.cursor/` 文档或提交 Git
+- AI 脚本应运行时从 `bjting-server/.env.deploy` 读取，或依赖环境变量注入
+- 文档中只记录**路径与变量名**，不记录具体密钥值
+
+## 3. 账号与 Zone 标识（bjting.com）
+
+| 项 | 值 |
+|----|-----|
+| Zone 名称 | `bjting.com` |
+| Zone ID | `3ef43e594e930907db201179951b319f` |
+| Account ID | `e37045ac9cf47a153a58905bef20317c` |
+| 套餐 | Free Website |
+| NS | `pablo.ns.cloudflare.com`, `wren.ns.cloudflare.com` |
+| SSL 模式 | `full` |
+
+## 4. Cloudflare API v4 调用规范
+
+### 4.1 认证（Global API Key，已验证）
+
+```bash
+X-Auth-Email: $CLOUDFLARE_EMAIL
+X-Auth-Key:   $CLOUDFLARE_API_KEY
+Content-Type: application/json
+```
+
+基址：`https://api.cloudflare.com/client/v4`
+
+### 4.2 常用端点
+
+```text
+GET  /zones?name=bjting.com
+GET  /zones/{zone_id}/dns_records?per_page=100
+POST /zones/{zone_id}/dns_records
+PATCH /zones/{zone_id}/dns_records/{record_id}
+DELETE /zones/{zone_id}/dns_records/{record_id}
+```
+
+### 4.3 Node 脚本模板（AI 优先用此方式）
+
+```javascript
+import { readFileSync } from 'fs';
+
+const env = readFileSync('../bjting-server/.env.deploy', 'utf8');
+const email = env.match(/CLOUDFLARE_EMAIL\s*=\s*(\S+)/)?.[1];
+const apiKey = env.match(/CLOUDFLARE_API_KEY\s*=\s*(\S+)/)?.[1];
+const ZONE_ID = '3ef43e594e930907db201179951b319f';
+
+const headers = {
+  'X-Auth-Email': email,
+  'X-Auth-Key': apiKey,
+  'Content-Type': 'application/json',
+};
+
+const res = await fetch(
+  `https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records`,
+  { headers }
+);
+```
+
+### 4.4 创建 DNS 记录注意事项
+
+- Clerk 相关 CNAME **必须** `proxied: false`（DNS only）
+- `ttl: 1` 表示 Automatic
+- `name` 只需填子域前缀（如 `clerk`），不要写全名 `clerk.bjting.com`
+- 创建前先 `GET` 列表，已存在则 `PATCH` 而非重复 `POST`
+
+## 5. Clerk 所需 DNS 记录（bjting.com）
+
+以下为生产 Clerk 实例要求的 CNAME（**均已通过 API 创建**）：
+
+| 名称 | 目标 | proxied |
+|------|------|---------|
+| `clerk` | `frontend-api.clerk.services` | `false` |
+| `accounts` | `accounts.clerk.services` | `false` |
+| `clkmail` | `mail.njfnb1mwzmeb.clerk.services` | `false` |
+| `clk._domainkey` | `dkim1.njfnb1mwzmeb.clerk.services` | `false` |
+| `clk2._domainkey` | `dkim2.njfnb1mwzmeb.clerk.services` | `false` |
+
+修改或重建前，先用 API 核对 `mail.*` / `dkim*.` 是否与 Clerk `GET /domains` 返回的 `cname_targets` 一致（实例迁移时可能变化）。
+
+## 6. DNS 验证方法
+
+本地默认 resolver 可能缓存未命中，**验证时指定公共 DNS**：
+
+```javascript
+import { Resolver } from 'dns/promises';
+
+const resolver = new Resolver();
+resolver.setServers(['1.1.1.1', '8.8.8.8']);
+
+await resolver.resolveCname('clerk.bjting.com');
+// 期望: frontend-api.clerk.services
+```
+
+传播通常几分钟内完成；Clerk SSL 签发可能额外需要 5–30 分钟。
+
+## 7. Wrangler CLI
+
+```bash
+# 认证状态
+npx wrangler whoami
+
+# Pages 部署（本项目）
+pnpm deploy   # 内部: wrangler pages deploy dist --project-name bjting-home
+```
+
+Wrangler **不能**替代 DNS API 进行记录管理；DNS 请用第 4 节 Global API Key 方式。
+
+## 8. Dashboard 浏览器自动化
+
+- Chrome DevTools MCP 打开 `https://dash.cloudflare.com/` 会跳到**登录页**，与用户本机已登录的浏览器**不共享 Cookie**
+- 用户说「已在控制台登录」时，AI 应改用 **API**，或请用户在本机浏览器操作后反馈结果
+- 直达 DNS 页（仍需登录态）：  
+  `https://dash.cloudflare.com/e37045ac9cf47a153a58905bef20317c/bjting.com/dns/records`
+
+## 9. Cloudflare MCP
+
+插件：`plugin-cloudflare-cloudflare-bindings`
+
+- 首次使用需 `mcp_auth` 认证
+- 适用于 D1、KV、R2、Workers 等资源管理
+- **不包含** DNS 记录管理工具；DNS 仍用 API v4
+
+## 10. 常见错误与处理
+
+| 现象 | 原因 | 处理 |
+|------|------|------|
+| DNS API `10000 Authentication error` | 使用了 Wrangler OAuth Token | 改用 Global API Key |
+| API Token `Invalid API Token` | `.env.deploy` 中 Token 已失效 | 用 `CLOUDFLARE_API_KEY` 或重新签发 Token |
+| MCP 浏览器在登录页 | 无共享会话 | 用 API，勿反复尝试 OAuth |
+| `clerk.bjting.com` 403 | Clerk SSL 未签发完成 | 确认 DNS 后等待；查 `clerk-访问与控制.mdc` |
+| CNAME 已存在冲突 | 重复 POST | 先 GET，再 PATCH 或跳过 |
+
+## 11. AI 任务检查清单
+
+执行 Cloudflare 自动化前：
+
+1. 确认操作类型：DNS → Global API Key；部署 → Wrangler
+2. 从 `bjting-server/.env.deploy` 读取凭证，勿硬编码密钥
+3. DNS 写操作前拉取现有记录，避免重复创建
+4. Clerk 相关记录必须 `proxied: false`
+5. 变更后用 `1.1.1.1` 验证解析
+6. 需要 Clerk 侧确认时，调用 Clerk `GET /domains`
+
+## 12. 相关文档
+
+- `clerk-访问与控制.mdc` — Clerk API、实例 ID、Redirect URLs
+- `clerk-auth.mdc` — 前端 Clerk 集成
+- `project-context.mdc` — API 基址、CDN 约定

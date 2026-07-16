@@ -185,21 +185,22 @@ posthog.reset();
 
 ## 9. 实施顺序
 
-| 阶段 | 内容 | 涉及文件 |
-|------|------|----------|
-| **Phase 1** | 安装 SDK + 注册插件 + 环境变量 | `package.json`, `main.ts`, `.env.local` |
-| **Phase 2** | 在 Header/布局中添加登录按钮 | `layout/header.vue`, `layout/mobile/index.vue` |
-| **Phase 3** | 改造 userStore 对接 Clerk | `stores/modules/user.ts` |
-| **Phase 4** | API 请求附带 Token | `api/index.ts` 或 `utils/http.ts` |
-| **Phase 5** | 路由守卫（按需） | `routers/index.ts` |
-| **Phase 6** | PostHog 用户标识联动 | `utils/analytics.ts` |
+| 阶段 | 内容 | 涉及文件 | 状态 |
+|------|------|----------|------|
+| **Phase 1** | 安装 SDK + 注册插件 + 环境变量 | `package.json`, `main.ts`, `.env.local` | ✅ 已完成 |
+| **Phase 2** | 在 Header/布局中添加登录按钮 | `ClerkAuthEntry.vue`, `layout/header.vue`, `layout/mobile/Header.vue` | ✅ 已完成 |
+| **Phase 3** | 改造 userStore 对接 Clerk | `stores/modules/user.ts`, `composables/useClerkSync.ts` | ✅ 已完成 |
+| **Phase 4** | API 请求附带 Token | `utils/http.ts`, `utils/clerkToken.ts` | ✅ 已完成 |
+| **Phase 5** | 路由守卫（按需） | `routers/index.ts`（`likes`/`my-music`/`recent`） | ✅ 已完成 |
+| **Phase 6** | PostHog 用户标识联动 | `utils/analytics.ts`, `useClerkSync.ts` | ✅ 已完成 |
 
 ## 10. Clerk Dashboard 配置清单
 
 在 [dashboard.clerk.com](https://dashboard.clerk.com) 中需要配置：
 
-- [ ] 应用名称设为「白洁听书」
-- [ ] 启用的登录方式（推荐：邮箱 + 手机号 + 微信/Google OAuth）
-- [ ] Allowed redirect URLs 中添加本站域名（含 hash 路由路径）
+- [ ] 应用名称设为「白洁听书」（Dashboard 当前为 `bjting`）
+- [x] 启用的登录方式（邮箱/用户名 + 密码）
+- [ ] **Google OAuth 自定义凭据**（生产必配，见 `clerk-访问与控制.mdc` §10）
+- [x] Allowed redirect URLs（生产 + 本地 dev，见 `clerk-访问与控制.mdc`）
 - [ ] 品牌定制（logo、主题色 `#EE454A`）
 - [ ] 切换到 Production 实例时更新 Publishable Key

@@ -10,7 +10,8 @@ alwaysApply: false
 
 | 文件 | 职责 |
 |------|------|
-| `src/utils/analytics.ts` | `initAnalytics`、`trackPageView`、`trackAudiobookPlayStart` |
+| `src/utils/analytics.ts` | `initAnalytics`、`trackPageView`、`trackAudiobookPlayStart`、`identifyClerkUser`、`resetClerkUser` |
+| `src/composables/useClerkSync.ts` | Clerk 登录/登出时调用 PostHog identify / reset |
 | `src/main.ts` | 应用启动时调用 `initAnalytics()` |
 
 ## 事件
@@ -26,6 +27,12 @@ alwaysApply: false
 - `listened_book_count`
 
 以上属性通过 `posthog.register` 写入，并在本地 `localStorage(ph_listened_books)` 做去重维护。
+
+## Clerk 登录用户标识
+
+- 登录成功：`identifyClerkUser(user)` → `posthog.identify(user.id, { email, name })`
+- 登出：`resetClerkUser()` → `posthog.reset()`
+- 触发位置：`useClerkSync`（`App.vue` 挂载）
 
 ## 指标口径
 

@@ -24,3 +24,7 @@ alwaysApply: false
 - `is_mobile`
 
 该埋点作为 DAU/PV 的统一统计源。
+
+## 登录守卫
+
+`router.beforeEach` 保护 `likes`、`my-music`、`recent`：未登录且 Clerk 已加载完成时重定向 `home`。登录态来源：`useUserStore`（由 `useClerkSync` 同步）。

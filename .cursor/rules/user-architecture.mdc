@@ -1,0 +1,36 @@
+---
+description: 用户状态缓存（Clerk 认证同步）
+globs: src/stores/modules/user.ts,src/composables/useClerkSync.ts
+alwaysApply: false
+---
+
+# User Store 模块
+
+## 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/stores/modules/user.ts` | Pinia 用户缓存：`profile`、`isSignedIn`、`authLoaded` |
+| `src/composables/useClerkSync.ts` | 监听 Clerk `useUser` / `useAuth`，同步 store、PostHog、Token |
+
+## 数据流
+
+1. `App.vue` 挂载时调用 `useClerkSync()`
+2. Clerk `isLoaded` + `isSignedIn` 变化 → `userStore.setAuthState`
+3. 已登录 → `userStore.syncFromClerk(user)` + `identifyClerkUser`
+4. 未登录 → `userStore.clear()` + `resetClerkUser`
+5. `setClerkTokenGetter(() => getToken())` 供 `http.ts` 附带 JWT
+
+## UserProfile 字段
+
+| 字段 | 来源 |
+|------|------|
+| `userId` | `user.id`（string） |
+| `nickname` | `fullName` / `firstName` / `username` |
+| `avatarUrl` | `user.imageUrl` |
+| `email` | `primaryEmailAddress.emailAddress` |
+
+## 约束
+
+- 认证源为 Clerk，不在 store 内手动 `login` / `logout`
+- 登出使用 Clerk `UserButton` 或 `signOut()`，勿直接改 store

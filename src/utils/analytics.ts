@@ -103,3 +103,26 @@ export const trackAudiobookPlayStart = (song: Song, chapterIndex: number) => {
         updateUserListenedBooks(bookId, bookTitle);
     }
 };
+
+interface ClerkUserLike {
+    id: string;
+    primaryEmailAddress?: { emailAddress?: string } | null;
+    fullName?: string | null;
+    username?: string | null;
+    firstName?: string | null;
+}
+
+/** Clerk 登录后绑定 PostHog 用户身份 */
+export const identifyClerkUser = (user: ClerkUserLike): void => {
+    if (!initialized) return;
+    posthog.identify(user.id, {
+        email: user.primaryEmailAddress?.emailAddress,
+        name: user.fullName || user.username || user.firstName || undefined,
+    });
+};
+
+/** Clerk 登出后重置 PostHog 匿名态 */
+export const resetClerkUser = (): void => {
+    if (!initialized) return;
+    posthog.reset();
+};

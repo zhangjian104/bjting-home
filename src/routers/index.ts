@@ -2,6 +2,10 @@ import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router
 import { defineComponent, h, defineAsyncComponent } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
 import { trackPageView } from '@/utils/analytics';
+import { useUserStore } from '@/stores/modules/user';
+
+/** 需要登录才能访问的路由 name */
+const AUTH_REQUIRED_ROUTE_NAMES = new Set(['likes', 'my-music', 'recent']);
 
 // 从环境变量中获取路由模式配置，默认为 'hash' 模式
 const mode = import.meta.env.VITE_ROUTER_MODE || 'hash';
@@ -216,6 +220,16 @@ const router = createRouter({
             ],
         },
     ],
+});
+
+router.beforeEach(to => {
+    if (!AUTH_REQUIRED_ROUTE_NAMES.has(String(to.name))) return true;
+
+    const userStore = useUserStore();
+    if (!userStore.authLoaded) return true;
+    if (userStore.isSignedIn) return true;
+
+    return { name: 'home' };
 });
 
 router.afterEach((to, from) => {

@@ -8,16 +8,22 @@ alwaysApply: false
 
 ## PC 桌面布局 (`src/layout/index.vue`)
 
-- `header.vue`：顶栏（搜索、主题、登录）
+- `header.vue`：顶栏（搜索、主题、Clerk 登录）
 - `aside.vue`：左侧导航 `sections` 配置
 - `footer.vue`：底栏播放器
+
+## Clerk 登录组件
+
+- `src/components/Auth/ClerkAuthEntry.vue`：桌面/移动端复用
+  - 未登录：`SignInButton mode="redirect"` → `accounts.bjting.com`
+  - 已登录：`UserButton`
+  - `compact` prop：移动端仅图标
 
 ## 暂隐藏的 PC 入口（仅注释模板/配置，页面与路由实现保留）
 
 | 功能 | 文件 | 方式 |
 |------|------|------|
 | 搜索 | `header.vue` | HTML 注释搜索框 + 历史 Teleport |
-| 登录 | `header.vue` | HTML 注释登录按钮 |
 | 外链（仓库/影视/文档） | `header.vue` | HTML 注释 `nav.nav-ext-link` 整块 |
 | MV / 排行榜 / 新碟 / 搜索 / 本地音乐 / 设置 | `aside.vue` | 注释 `sections` 对应项 |
 | 排行榜「查看全部」 | `pages/index.vue` | HTML 注释 `router-link` |
@@ -28,5 +34,5 @@ alwaysApply: false
 
 | 功能 | 文件 | 方式 |
 |------|------|------|
-| 搜索 / 登录 | `mobile/Header.vue` | HTML 注释右侧按钮区 |
+| 搜索 | `mobile/Header.vue` | 未实现（登录已启用，见 `ClerkAuthEntry compact`） |
 | 搜索（底栏 Tab） | `mobile/TabBar.vue` | 注释 `items` 中 `/search` 项 |

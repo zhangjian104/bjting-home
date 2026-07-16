@@ -11,7 +11,8 @@ alwaysApply: false
 | 文件 | 职责 |
 |------|------|
 | `src/api/index.ts` | 有声小说接口（`getAudiobooks`、`getAudiobookDetail` 等） |
-| `src/utils/http.ts` | axios 封装，与 `VITE_API_BASE_URL` 共用基址 |
+| `src/utils/http.ts` | axios 封装；请求拦截器自动附带 `Authorization: Bearer <Clerk JWT>`（已登录时） |
+| `src/utils/clerkToken.ts` | Clerk `getToken` 注册与读取（供 http 使用） |
 
 ## 基址约定
 

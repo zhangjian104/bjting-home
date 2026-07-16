@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
-// 移动端头部：左侧 Logo/标题，右侧搜索与登录入口
-const router = useRouter();
-const { t } = useI18n();
+import ClerkAuthEntry from '@/components/Auth/ClerkAuthEntry.vue';
 
-// 搜索入口：跳转到搜索页
-const goSearch = () => router.push('/search');
+// 移动端头部：左侧 Logo/标题，右侧登录入口
+const { t } = useI18n();
 </script>
 
 <template>
@@ -16,21 +14,6 @@ const goSearch = () => router.push('/search');
                 <h1 class="text-primary text-base font-semibold">{{ t('common.appName') }}</h1>
             </router-link>
         </div>
-        <!-- 搜索 / 登录入口（暂隐藏，保留实现；登录后续替换为 Clerk 组件） -->
-        <!-- <div class="flex items-center gap-2">
-            <button
-                class="hover:bg-hover-glass rounded-md p-2"
-                :title="t('common.search.label')"
-                @click="goSearch"
-            >
-                <span class="icon-[mdi--magnify] h-5 w-5"></span>
-            </button>
-            <button
-                class="hover:bg-hover-glass rounded-md p-2"
-                :title="t('auth.login')"
-            >
-                <span class="icon-[mdi--account] h-5 w-5"></span>
-            </button>
-        </div> -->
+        <ClerkAuthEntry compact />
     </header>
 </template>

@@ -1,0 +1,250 @@
+---
+description: Clerk 控制台、Backend API 与 CLI 的正确访问与控制方式（AI 自动化优先）
+globs:
+alwaysApply: false
+---
+
+# Clerk 访问与控制
+
+本文档记录在本项目中**已验证可用**的 Clerk 访问方式，供 AI 自动化任务优先使用。业务集成细节见 `clerk-auth.mdc`。
+
+## 1. 访问方式优先级
+
+| 方式 | 是否推荐 | 说明 |
+|------|----------|------|
+| **Backend API**（`sk_live_` / `sk_test_`） | ✅ 首选 | 无需浏览器登录，可读写实例配置 |
+| **Clerk CLI**（`npx clerk@latest`） | ✅ 辅助 | 探查端点、执行 API；`config pull` 需 link |
+| **Dashboard 浏览器** | ⚠️ 受限 | MCP/自动化浏览器常因非安全环境无法完成 OAuth |
+| **Frontend API**（`clerk.bjting.com`） | ⚠️ 只读环境 | 依赖 DNS + SSL 就绪；用于读 `environment` |
+
+**原则**：AI 执行任务时，默认用 **Secret Key + Backend API**；不要依赖 Dashboard 登录。
+
+## 2. 凭证存放约定
+
+| 变量 | 用途 | 存放位置 |
+|------|------|----------|
+| `VITE_CLERK_PUBLISHABLE_KEY` | 前端 SDK | `bjting-home/.env.local`（勿提交 Git） |
+| `CLERK_SECRET_KEY` | Backend API / Workers | 后端 `.env` / Workers Secrets；**禁止**写入前端 |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Next.js 命名 | 本项目用 `VITE_` 前缀，勿混用 |
+
+- Publishable Key 后缀为 Base64，解码可得 Frontend API 域名（如 `clerk.bjting.com`）
+- Secret Key **不得**写入 `.cursor/` 文档或提交 Git
+
+## 3. 生产实例标识（bjting.com）
+
+| 项 | 值 |
+|----|-----|
+| Instance ID | `ins_3C6VeE8kJdKnsB8D9E3c40vi6mb` |
+| 环境 | `production` |
+| 自定义域名 | `bjting.com` |
+| Frontend API | `https://clerk.bjting.com` |
+| Account Portal | `https://accounts.bjting.com` |
+| API 基址 | `https://api.clerk.com/v1` |
+
+## 4. Backend API 调用规范
+
+### 4.1 认证头
+
+```bash
+Authorization: Bearer $CLERK_SECRET_KEY
+Content-Type: application/json
+```
+
+### 4.2 常用只读端点
+
+```text
+GET  /instance
+GET  /domains
+GET  /redirect_urls
+GET  /users?limit=10
+GET  /jwt_templates
+GET  /instance/organization_settings
+GET  /instance/oauth_application_settings
+GET  /instance/communication
+GET  /instance/protect
+GET  /jwks
+```
+
+### 4.3 读取实例设置（GET 不可用时的技巧）
+
+部分设置无 GET，可用 **空 PATCH** 返回当前值（已验证）：
+
+```bash
+# 实例通用设置
+PATCH /beta_features/instance_settings  body: {}
+
+# 限制策略
+PATCH /instance/restrictions  body: {}
+```
+
+### 4.4 写入示例：Redirect URLs
+
+```bash
+POST /redirect_urls
+{
+  "url": "https://bjting.com"
+}
+```
+
+可追加：`https://bjting.com/*`、`https://www.bjting.com/*`。
+
+### 4.5 Node 脚本模板（AI 优先用此方式）
+
+```javascript
+const KEY = process.env.CLERK_SECRET_KEY;
+const BASE = 'https://api.clerk.com/v1';
+
+const res = await fetch(`${BASE}/domains`, {
+  headers: { Authorization: `Bearer ${KEY}` },
+});
+const data = await res.json();
+```
+
+**禁止**在组件或 `src/` 中直接 `fetch('https://api.clerk.com')`；运维脚本或 AI 一次性任务除外。
+
+## 5. Clerk CLI
+
+```bash
+export CLERK_SECRET_KEY=sk_live_xxx   # 或 sk_test_xxx
+
+# 列出 API 端点
+npx clerk@latest api ls
+npx clerk@latest api ls redirect
+
+# 直接调用 Backend API
+npx clerk@latest api /domains
+npx clerk@latest api /redirect_urls
+
+# 本地集成健康检查
+npx clerk@latest doctor
+```
+
+### CLI 限制（已验证）
+
+| 命令 | 条件 |
+|------|------|
+| `clerk config pull` | 需 `clerk link` 或 `--app <app_id>`，且通常要 Platform 登录 |
+| `clerk config schema` | 同上 |
+| `clerk api --fapi /environment` | 依赖 `clerk.bjting.com` DNS + SSL；未就绪时会超时或 403 |
+
+## 6. Dashboard 浏览器自动化
+
+- **Chrome DevTools MCP** 可打开 `https://dashboard.clerk.com/`，但 Google/GitHub OAuth 在自动化环境常被拒（「无法在非安全环境下登录」）
+- 若必须 Dashboard：由**用户在本机浏览器**手动登录，完成后告知 AI 继续
+- **不要**在自动化浏览器中反复尝试 OAuth
+
+## 7. DNS 与 Frontend API 依赖
+
+Clerk 生产实例使用自定义域名，须在 Cloudflare 配置 CNAME（详见 `cloudflare-访问与控制.mdc`）。
+
+DNS 记录生效后：
+
+1. Clerk 自动签发 SSL（通常 5–30 分钟）
+2. `https://clerk.bjting.com/v1/environment` 可返回配置
+3. 前端 `@clerk/vue` 才能正常工作
+
+验证 DNS（推荐指定 `1.1.1.1`）：
+
+```bash
+# 应用层验证示例（Node）
+import { Resolver } from 'dns/promises';
+const r = new Resolver();
+r.setServers(['1.1.1.1']);
+await r.resolveCname('clerk.bjting.com');  // -> frontend-api.clerk.services
+```
+
+## 8. 当前实例快照（运维对照）
+
+以下为最近一次 API 拉取结果，有变更时需通过 API 重新确认：
+
+- 用户量：`0`
+- Redirect URLs：**已配置**（8 条，2026-07-16）
+  - `https://bjting.com`、`https://bjting.com/*`
+  - `https://www.bjting.com`、`https://www.bjting.com/*`
+  - `http://localhost:5173`、`http://localhost:5173/*`（本地 Vite 开发）
+  - `http://127.0.0.1:5173`、`http://127.0.0.1:5173/*`
+- Organizations：**关闭**
+- JWT Templates：**无**
+- 手机验证：**未启用**
+- `progressive_sign_up`: `true`
+- `test_mode`: `false`
+
+## 9. AI 任务检查清单
+
+执行 Clerk 相关自动化前：
+
+1. 确认 `CLERK_SECRET_KEY` 已注入当前 shell 环境
+2. 优先 `GET /domains`、`GET /redirect_urls` 确认现状
+3. 写操作前列出将修改的 URL/配置，避免覆盖
+4. DNS 问题转查 `cloudflare-访问与控制.mdc`
+5. 代码集成转查 `clerk-auth.mdc`
+6. 响应中**不要**回显 Secret Key
+
+## 10. Google OAuth（生产环境必配）
+
+### 10.1 现象
+
+Dashboard 显示 **Setup required**：Google 已启用，但生产实例**不能**使用 Clerk 共享开发凭证，必须填入自有 **Client ID / Client Secret**，否则点击 Google 登录会失败。
+
+### 10.2 Clerk 侧固定参数
+
+| 项 | 值 |
+|----|-----|
+| Authorized Redirect URI | `https://clerk.bjting.com/v1/oauth_callback` |
+| Scopes | `openid`、`userinfo.email`、`userinfo.profile` |
+| FAPI 中策略名 | `oauth_google`（`user_settings.social.oauth_google.enabled: true`） |
+
+### 10.3 Google Cloud Console 配置步骤
+
+1. 打开 [Google Cloud Console](https://console.cloud.google.com/) → 选择或新建项目（建议命名 `bjting-auth`）。
+2. **APIs & Services → OAuth consent screen**：配置应用名称（如「白洁听书」）、支持邮箱、Logo；测试阶段可保持 **Testing** 并添加测试用户；对外公开需 **In production** 并完成 Google 审核。
+3. **APIs & Services → Credentials → Create Credentials → OAuth client ID**：
+   - 类型：**Web application**
+   - **Authorized JavaScript origins**（每条单独添加）：
+     - `https://bjting.com`
+     - `https://www.bjting.com`
+     - `https://accounts.bjting.com`
+     - `http://localhost:5173`（本地联调）
+   - **Authorized redirect URIs**：
+     - `https://clerk.bjting.com/v1/oauth_callback`
+4. 创建后保存 **Client ID**（形如 `123456789-xxxx.apps.googleusercontent.com`）与 **Client Secret**（形如 `GOCSPX-...`）。
+
+### 10.4 写入 Clerk
+
+**方式 A（推荐，用户本机 Dashboard）**
+
+SSO connections → Google → 开启 **Use custom credentials** → 填入 Client ID / Secret → Save。
+
+**方式 B（AI / 脚本，需用户先提供凭据）**
+
+```javascript
+// PATCH /v1/beta_features/instance_settings
+await fetch('https://api.clerk.com/v1/beta_features/instance_settings', {
+  method: 'PATCH',
+  headers: {
+    Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    connection_oauth_google: {
+      enabled: true,
+      client_id: '<GOOGLE_CLIENT_ID>',
+      client_secret: '<GOOGLE_CLIENT_SECRET>',
+    },
+  }),
+});
+```
+
+> `client_id` 须匹配 `^[0-9]+-[a-z0-9]+\.apps\.googleusercontent\.com$`。凭据**禁止**写入 Git 或 `.cursor/` 文档。
+
+### 10.5 验证
+
+1. 打开 `https://accounts.bjting.com/sign-in` 或 `https://bjting.com` 点击登录 → Google。
+2. 应跳转到 `accounts.google.com`，回调至 `clerk.bjting.com/v1/oauth_callback` 后回到站点并已登录。
+3. 若报 `redirect_uri_mismatch`：检查 Google 控制台 Redirect URI 是否完全一致（无尾斜杠）。
+4. 若报 `access_denied` / 测试用户限制：将 Google 应用发布为 Production，或在 Testing 模式下把账号加入测试用户列表。
+
+## 11. 相关文档
+
+- `clerk-auth.mdc` — 前端集成、userStore、PostHog 联动
+- `cloudflare-访问与控制.mdc` — Clerk 所需 DNS 与 Cloudflare API
